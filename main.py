@@ -8,6 +8,38 @@ SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 KEY_FILE_LOCATION = 'arboreal-drake-711-439eedbba062.json'
 VIEW_ID = '199779379'
 
+#To create query https://ga-dev-tools.appspot.com/request-composer/
+
+request = {}
+request['last7']={
+        'reportRequests': [
+        {
+          'viewId': VIEW_ID,
+          'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'today'}],
+          'metrics': [{'expression': 'ga:sessions'}],
+          'dimensions': [{'name': 'ga:country'}]
+        }]
+      }
+request['last30']={
+  "reportRequests": [
+    {
+      "viewId": "199779379",
+      "dateRanges": [
+        {
+          "startDate": "30daysAgo",
+          "endDate": "yesterday"
+        }
+      ],
+      "metrics": [
+        {
+          "expression": "ga:users",
+          "alias": ""
+        }
+      ]
+    }
+  ]
+}
+
 
 def initialize_analyticsreporting():
   """Initializes an Analytics Reporting API V4 service object.
@@ -33,15 +65,8 @@ def get_report(analytics):
     The Analytics Reporting API V4 response.
   """
   return analytics.reports().batchGet(
-      body={
-        'reportRequests': [
-        {
-          'viewId': VIEW_ID,
-          'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'today'}],
-          'metrics': [{'expression': 'ga:sessions'}],
-          'dimensions': [{'name': 'ga:country'}]
-        }]
-      }
+      body=request['last30']
+
   ).execute()
 
 
