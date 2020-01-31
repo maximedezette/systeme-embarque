@@ -4,9 +4,20 @@ from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
 
 import RPi.GPIO
-import adafruit_charlcd
+import Adafruit_CharLCD
+import time
+import math
 
+lcd_rs=27
+lcd_en=22
+lcd_d4=25
+lcd_d5=24
+lcd_d6=23
+lcd_d7=18
+lcd_backlight=4
 
+lcd_columns=16
+lcd_rows=2
 
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 KEY_FILE_LOCATION = 'arboreal-drake-711-439eedbba062.json'
@@ -103,9 +114,10 @@ def main():
   response = get_report(analytics)
   print_response(response)
 
-  lcd = Adafruit_CharLCD.Adafruit_CharLCD(pin_rs=14, pin_e=15, pins_db=[2,3,4,17])
+  lcd = Adafruit_CharLCD.Adafruit_CharLCD(lcd_rs,lcd_en,lcd_d4,lcd_d5,lcd_d6,lcd_d7,lcd_columns,lcd_rows,lcd_backlight)
   lcd.clear()
-  lcd.message(« Hello world !!! »)
+  lcd.message(' Hello world !!! ')
+  time.sleep(5.0)
 
 
 if __name__ == '__main__':
