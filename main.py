@@ -1,20 +1,19 @@
 """Hello Analytics Reporting API V4."""
 
-from googleapiclient.discovery import build
-from oauth2client.service_account import ServiceAccountCredentials
+#from googleapiclient.discovery import build
+#from oauth2client.service_account import ServiceAccountCredentials
 
 import RPi.GPIO
-import Adafruit_CharLCD
+from Adafruit_CharLCD import Adafruit_CharLCD
 import time
 import math
 
-lcd_rs=27
-lcd_en=22
-lcd_d4=25
-lcd_d5=24
-lcd_d6=23
-lcd_d7=18
-lcd_backlight=4
+lcd_rs=26
+lcd_en=19
+lcd_d4=13
+lcd_d5=6
+lcd_d6=5
+lcd_d7=11
 
 lcd_columns=16
 lcd_rows=2
@@ -109,16 +108,12 @@ def print_response(response):
           print (metricHeader.get('name') + ': ' + value)
 
 
-def main():
-  analytics = initialize_analyticsreporting()
-  response = get_report(analytics)
-  print_response(response)
-
-  lcd = Adafruit_CharLCD.Adafruit_CharLCD(lcd_rs,lcd_en,lcd_d4,lcd_d5,lcd_d6,lcd_d7,lcd_columns,lcd_rows,lcd_backlight)
+#  analytics = initialize_analyticsreporting()
+ # response = get_report(analytics)
+  #print_response(response)
+while 1:
+  lcd = Adafruit_CharLCD(lcd_rs,lcd_en,lcd_d4,lcd_d5,lcd_d6,lcd_d7,lcd_columns,lcd_rows)
   lcd.clear()
-  lcd.message(' Hello world !!! ')
+  lcd.message('Test')
   time.sleep(5.0)
 
-
-if __name__ == '__main__':
-  main()
