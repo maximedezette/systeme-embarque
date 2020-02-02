@@ -12,10 +12,12 @@ SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 KEY_FILE_LOCATION = 'arboreal-drake-711-439eedbba062.json'
 VIEW_ID = '199779379'
 
+ID_REQUEST = 0
+
 #To create query https://ga-dev-tools.appspot.com/request-composer/
 
 request = {}
-request['last7']={
+request[0]={
         'reportRequests': [
         {
           'viewId': VIEW_ID,
@@ -24,7 +26,7 @@ request['last7']={
           'dimensions': [{'name': 'ga:country'}]
         }]
       }
-request['last30']={
+request[1]={
   "reportRequests": [
     {
       "viewId": "199779379",
@@ -43,6 +45,11 @@ request['last30']={
     }
   ]
 }
+
+firstLine = []
+firstLine.insert(0,"SEMAINE DERNIERE")
+firstLine.insert(1,"MOIS DERNIER")
+
 
 # Define some device parameters
 I2C_ADDR = 0x27     # I2C device address, if any error, change this address to 0x3f
@@ -116,6 +123,7 @@ def lcd_string(message, line):
 
     for i in range(LCD_WIDTH):
         lcd_byte(ord(message[i]), LCD_CHR)
+        time.sleep(0.1)
 
 
 def initialize_analyticsreporting():
@@ -141,9 +149,15 @@ def get_report(analytics):
   Returns:
     The Analytics Reporting API V4 response.
   """
-  return analytics.reports().batchGet(
-      body=request['last30']
+  global ID_REQUEST 
 
+  if ID_REQUEST == 1:
+    ID_REQUEST = ID_REQUEST -1
+  else:
+    ID_REQUEST = ID_REQUEST +1
+
+  return analytics.reports().batchGet(
+      body=request[ID_REQUEST]
   ).execute()
 
 
@@ -172,18 +186,23 @@ def print_response(response):
 
 
 def main():
+
+  global firstLine
+  global ID_REQUEST 
+
   analytics = initialize_analyticsreporting()
-  response = get_report(analytics)
-  print_response(response)
-
-
-  lcd_init()
 
   while True:
-      # Send some test
-      lcd_string("Hello      ", LCD_LINE_1)
-      lcd_string("      World", LCD_LINE_2)  
-      time.sleep(3)  
+    response = get_report(analytics)
+    numberOfUserLastMonth = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
+  
+    secondSentence = str(numberOfUserLastMonth) + " utilisateurs"
+  
+    lcd_init()
+    
+    lcd_string(firstLine[ID_REQUEST], LCD_LINE_1)
+    lcd_string(secondSentence, LCD_LINE_2)  
+    time.sleep(30)  
 
 if __name__ == '__main__':
   main()
