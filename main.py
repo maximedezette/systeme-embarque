@@ -1,54 +1,8 @@
-"""Hello Analytics Reporting API V4."""
-
-from googleapiclient.discovery import build
-from oauth2client.service_account import ServiceAccountCredentials
+from infoFactory import InfoFactory
 
 import smbus2 as smbus
 import time
 import math
-
-
-SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
-KEY_FILE_LOCATION = 'arboreal-drake-711-439eedbba062.json'
-VIEW_ID = '199779379'
-
-ID_REQUEST = 0
-
-#To create query https://ga-dev-tools.appspot.com/request-composer/
-
-request = {}
-request[0]={
-        'reportRequests': [
-        {
-          'viewId': VIEW_ID,
-          'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'today'}],
-          'metrics': [{'expression': 'ga:sessions'}],
-          'dimensions': [{'name': 'ga:country'}]
-        }]
-      }
-request[1]={
-  "reportRequests": [
-    {
-      "viewId": "199779379",
-      "dateRanges": [
-        {
-          "startDate": "30daysAgo",
-          "endDate": "yesterday"
-        }
-      ],
-      "metrics": [
-        {
-          "expression": "ga:users",
-          "alias": ""
-        }
-      ]
-    }
-  ]
-}
-
-firstLine = []
-firstLine.insert(0,"SEMAINE DERNIERE")
-firstLine.insert(1,"MOIS DERNIER")
 
 
 # Define some device parameters
@@ -125,84 +79,43 @@ def lcd_string(message, line):
         lcd_byte(ord(message[i]), LCD_CHR)
         time.sleep(0.1)
 
-
-def initialize_analyticsreporting():
-  """Initializes an Analytics Reporting API V4 service object.
-
-  Returns:
-    An authorized Analytics Reporting API V4 service object.
-  """
-  credentials = ServiceAccountCredentials.from_json_keyfile_name(
-      KEY_FILE_LOCATION, SCOPES)
-
-  # Build the service object.
-  analytics = build('analyticsreporting', 'v4', credentials=credentials)
-
-  return analytics
-
-
-def get_report(analytics):
-  """Queries the Analytics Reporting API V4.
-
-  Args:
-    analytics: An authorized Analytics Reporting API V4 service object.
-  Returns:
-    The Analytics Reporting API V4 response.
-  """
-  global ID_REQUEST 
-
-  if ID_REQUEST == 1:
-    ID_REQUEST = ID_REQUEST -1
-  else:
-    ID_REQUEST = ID_REQUEST +1
-
-  return analytics.reports().batchGet(
-      body=request[ID_REQUEST]
-  ).execute()
-
-
-def print_response(response):
-  """Parses and prints the Analytics Reporting API V4 response.
-
-  Args:
-    response: An Analytics Reporting API V4 response.
-  """
-  for report in response.get('reports', []):
-    columnHeader = report.get('columnHeader', {})
-    dimensionHeaders = columnHeader.get('dimensions', [])
-    metricHeaders = columnHeader.get('metricHeader', {}).get('metricHeaderEntries', [])
-
-    for row in report.get('data', {}).get('rows', []):
-      dimensions = row.get('dimensions', [])
-      dateRangeValues = row.get('metrics', [])
-
-      for header, dimension in zip(dimensionHeaders, dimensions):
-        print (header + ': ' + dimension)
-
-      for i, values in enumerate(dateRangeValues):
-        print ('Date range: ' + str(i))
-        for metricHeader, value in zip(metricHeaders, values.get('values')):
-          print (metricHeader.get('name') + ': ' + value)
-
-
 def main():
 
   global firstLine
   global ID_REQUEST 
 
-  analytics = initialize_analyticsreporting()
+ 
+  infoFactory = InfoFactory()
+  idInfoMax = infoFactory.getNumberOfInfo()
+  idInfo = 1
+  
+  global ID_REQUEST 
 
   while True:
-    response = get_report(analytics)
-    numberOfUserLastMonth = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
-  
-    secondSentence = str(numberOfUserLastMonth) + " utilisateurs"
-  
+
+    #On efface le contenu de l'écran
     lcd_init()
-    
-    lcd_string(firstLine[ID_REQUEST], LCD_LINE_1)
-    lcd_string(secondSentence, LCD_LINE_2)  
-    time.sleep(30)  
+
+    #On repart de 0 si on a affiché la dernière info
+    #sinon on passe à la suivante
+    if idInfo == idInfoMax:
+     idInfo = 0
+    else:
+      idInfo = idInfo + 1
+
+    info = []
+    #On récupère l'info à afficher
+    info = infoFactory.generateInfo(idInfo)
+
+    #On affiche l'info
+    lcd_string(info[0],LCD_LINE_1)
+
+    if len(info)>1:
+     lcd_string(info[1],LCD_LINE_2)
+  
+    time.sleep(5)  
 
 if __name__ == '__main__':
   main()
+
+
