@@ -1,14 +1,21 @@
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
+from telegramBotManager import TelegramBotManager
 
 import socket
 import os
+import requests 
 from datetime import datetime
+
+# Telegram group ID
+TELEGRAM_GROUP_ID = os.environ.get('TelegramAperoTechGroupId')
 
 
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 KEY_FILE_LOCATION = 'arboreal-drake-711-439eedbba062.json'
 VIEW_ID = '199779379'
+
+tbm = TelegramBotManager()
 
 
 def initialize_analyticsreporting():
@@ -122,14 +129,18 @@ class InfoFactory:
      info.insert(0,datetime.now().strftime('%b %d  %H:%M:%S\n'))
      info.insert(1,'IP {}'.format(ip))
     
-    elif idInfo ==4:
+    elif idInfo == 4:
       hostname = "apero-tech.fr"
-      response = os.system("ping -c 1 " + hostname)
-      if response == 0:
-         info.insert(0, hostname)
-         info.insert(1, "  UP :)  ")
+      httpStatusOfHost = requests.get("https://"+hostname).status_code
+      # Call method for send message
+      print(httpStatusOfHost)
+      if httpStatusOfHost == 200:
+        info.insert(0, hostname)
+        info.insert(1, "Est up :)")
       else:
-         info.insert(0,"Le site est down!!!")
+        tbm.send_message_to_group(TELEGRAM_GROUP_ID, "@Vinvin27 Le site est down!!")
+        info.insert(0, hostname)
+        info.insert(1, "Est down !! :(")
 
     else:
      info.insert(0,"ERREUR")
