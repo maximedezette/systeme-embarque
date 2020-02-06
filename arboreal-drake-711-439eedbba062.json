@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "arboreal-drake-711",
+  "private_key_id": "439eedbba062b503cc8e8874c1f86abd24d4a297",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCfjmmI+40/9YkZ\nZq/PN7Zi6Q70Bg5C9+GRekxIEIHm++l3QS+OcV0cotD6MiimN8h9x9xLgfpOmfRX\ncCTBz8cNr1cZD63LfQy/szen0h7IR16K0edgYCPQdyzejGP3B66VBaJak+tCbBS1\nGE7dkN+Mlqqvc0VAXZd6KdRdoFWoBILW90hsYrtJmd0xUMjhQ7ppb02bs+IS+7PU\n2CM3oR5K7MntKP0ksKOzSpvUW92k3omO1SwR6EUnbiLXJdvbSmeoq/IQShr5dstm\n7ifpoIjYLbCcDAUMAlkBVxJnqZguykkvaT7sIW2/tRbUGs2CFJ+taaD/SIP7xyeh\nZXOMBmQbAgMBAAECggEAAmfhzycdLUffqNU5Cmf9z9umwObZzohb9ixrZlzFW1Jq\nEJptg/l78hjBtjwNC9s5zS0MdSEBFq/7P1mZXEjB6MK/jp5YvFbm2yRxzuMmrqtm\nJrQH3UFQg5irFwdJNz9+POX9rt2dxahz3s/T2e27c9cOZ3XWp06h9ZLC488tQMrG\nghxbpG8zhUDw534AypbO/uPSjhmh4ZmUW/tF+T8TVQmzsg95Jua9K71tOW16p9pZ\nOtC6MW73Ki+ZHzeGAQewouBeczTZqdk/5m5LBaqLaga9Wm9tEuh5GIGfyaCSwHyv\n665VlyM9ITeFlGtIdQHmlSPJV23mjAgkyqYxne0glQKBgQDaKqeKv2rGSXkZtRL8\nbWlb6wiGA+SZWRH64d0Fv5eWzi5Jaca8FyGHE0V44ayWOAZ8tOkCLYSL3WhVxSWz\nWCOexNb9sYGvSH91MmPHk85zxghhNUz6gckN+BNpnikJR9WTLYd8jFrjW1NJb6fe\nu0/4F0Z+0pndRJPKk9d3hEOYPwKBgQC7OcvEjS/tSIv50e4E8rngqn1gM+Qv1sQJ\n+kloYH4hsDP4kLmiPC0JaqCVy4NYhhoMHjKKe2I69JepXf+rU5sa9BC20pgCVF9q\nqvhGho0FP9/IQNmt7HvfOiCnCb5KUg1YmuxwsHm+pgQSwDyluyWmwW9j1b8FjRij\nnZlQf23dJQKBgDYbqh3xR4wSIOTNUf4lLKJNcnm6cXHO83Sjm+uXDwOp8zTl9RIl\nMn2LvAk0/1bqYkF/pOKTY3JE4WGUWbtXOs5fx2p4Ic/VTTdF3hVbhTKVhPKHA6aF\nldXPFxF01nykwkWUXyv2q3wD5G4sMRg+oKDJNQSzOtHz9iuh6yiLNzCFAoGBAKXs\n7cKuobf34F2xh/EIsGUEk4KL2oHvIuP41c/UHFR81UJH+Mxn6j37KoA20ZvFlRYC\nOSZzfLXlCPfH34sV2FNF0/5CmwcNgVaGWOwf2KC7X/cYShKSj6Fg4YlH4EX7e+p3\num2QaQTmGpwHlHgIaLDlo3Nl/hnMVvbB+BrYJCSlAoGAKpuzVIoNatfg3cCHrsYR\nZty+9jlMGe/n8N8am/NgaMerjC3TjBoI6w8KRLSjwomo1EHwUcPhPmwMSVkf3lYV\nPbqHlxlRNj3u++jTKQ+gb3mLF/Q8SlbAnX0whAG0eN2vgwTzavYCU7OaYM/rfDss\nz6jKS3+HSsnXjEz1h1OrRAk=\n-----END PRIVATE KEY-----\n",
+  "client_email": "apero-tech@arboreal-drake-711.iam.gserviceaccount.com",
+  "client_id": "117171088817172101164",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/apero-tech%40arboreal-drake-711.iam.gserviceaccount.com"
+}
