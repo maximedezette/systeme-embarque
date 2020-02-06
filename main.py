@@ -1,103 +1,124 @@
-"""Hello Analytics Reporting API V4."""
-
-from googleapiclient.discovery import build
-from oauth2client.service_account import ServiceAccountCredentials
+from infoFactory import InfoFactory
 
 
-SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
-KEY_FILE_LOCATION = 'arboreal-drake-711-439eedbba062.json'
-VIEW_ID = '199779379'
-
-#To create query https://ga-dev-tools.appspot.com/request-composer/
-
-request = {}
-request['last7']={
-        'reportRequests': [
-        {
-          'viewId': VIEW_ID,
-          'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'today'}],
-          'metrics': [{'expression': 'ga:sessions'}],
-          'dimensions': [{'name': 'ga:country'}]
-        }]
-      }
-request['last30']={
-  "reportRequests": [
-    {
-      "viewId": "199779379",
-      "dateRanges": [
-        {
-          "startDate": "30daysAgo",
-          "endDate": "yesterday"
-        }
-      ],
-      "metrics": [
-        {
-          "expression": "ga:users",
-          "alias": ""
-        }
-      ]
-    }
-  ]
-}
+import smbus2 as smbus
+import time
+import math
 
 
-def initialize_analyticsreporting():
-  """Initializes an Analytics Reporting API V4 service object.
+# Define some device parameters
+I2C_ADDR = 0x27     # I2C device address, if any error, change this address to 0x3f
+LCD_WIDTH = 16      # Maximum characters per line
 
-  Returns:
-    An authorized Analytics Reporting API V4 service object.
-  """
-  credentials = ServiceAccountCredentials.from_json_keyfile_name(
-      KEY_FILE_LOCATION, SCOPES)
+# Define some device constants
+LCD_CHR = 1     # Mode - Sending data
+LCD_CMD = 0     # Mode - Sending command
 
-  # Build the service object.
-  analytics = build('analyticsreporting', 'v4', credentials=credentials)
+LCD_LINE_1 = 0x80   # LCD RAM address for the 1st line
+LCD_LINE_2 = 0xC0   # LCD RAM address for the 2nd line
+LCD_LINE_3 = 0x94   # LCD RAM address for the 3rd line
+LCD_LINE_4 = 0xD4   # LCD RAM address for the 4th line
 
-  return analytics
+LCD_BACKLIGHT = 0x08  # On
 
+ENABLE = 0b00000100     # Enable bit
 
-def get_report(analytics):
-  """Queries the Analytics Reporting API V4.
+# Timing constants
+E_PULSE = 0.0005
+E_DELAY = 0.0005
 
-  Args:
-    analytics: An authorized Analytics Reporting API V4 service object.
-  Returns:
-    The Analytics Reporting API V4 response.
-  """
-  return analytics.reports().batchGet(
-      body=request['last30']
-
-  ).execute()
+# Open I2C interface
+# bus = smbus.SMBus(0)  # Rev 1 Pi uses 0
+bus = smbus.SMBus(1)    # Rev 2 Pi uses 1
 
 
-def print_response(response):
-  """Parses and prints the Analytics Reporting API V4 response.
+def lcd_init():
+    # Initialise display
+    lcd_byte(0x33, LCD_CMD)     # 110011 Initialise
+    lcd_byte(0x32, LCD_CMD)     # 110010 Initialise
+    lcd_byte(0x06, LCD_CMD)     # 000110 Cursor move direction
+    lcd_byte(0x0C, LCD_CMD)     # 001100 Display On,Cursor Off, Blink Off
+    lcd_byte(0x28, LCD_CMD)     # 101000 Data length, number of lines, font size
+    lcd_byte(0x01, LCD_CMD)     # 000001 Clear display
+    time.sleep(E_DELAY)
 
-  Args:
-    response: An Analytics Reporting API V4 response.
-  """
-  for report in response.get('reports', []):
-    columnHeader = report.get('columnHeader', {})
-    dimensionHeaders = columnHeader.get('dimensions', [])
-    metricHeaders = columnHeader.get('metricHeader', {}).get('metricHeaderEntries', [])
 
-    for row in report.get('data', {}).get('rows', []):
-      dimensions = row.get('dimensions', [])
-      dateRangeValues = row.get('metrics', [])
+def lcd_byte(bits, mode):
+    # Send byte to data pins
+    # bits = the data
+    # mode = 1 for data
+    #        0 for command
 
-      for header, dimension in zip(dimensionHeaders, dimensions):
-        print (header + ': ' + dimension)
+    bits_high = mode | (bits & 0xF0) | LCD_BACKLIGHT
+    bits_low = mode | ((bits << 4) & 0xF0) | LCD_BACKLIGHT
 
-      for i, values in enumerate(dateRangeValues):
-        print ('Date range: ' + str(i))
-        for metricHeader, value in zip(metricHeaders, values.get('values')):
-          print (metricHeader.get('name') + ': ' + value)
+    # High bits
+    bus.write_byte(I2C_ADDR, bits_high)
+    lcd_toggle_enable(bits_high)
 
+    # Low bits
+    bus.write_byte(I2C_ADDR, bits_low)
+    lcd_toggle_enable(bits_low)
+
+
+def lcd_toggle_enable(bits):
+    # Toggle enable
+    time.sleep(E_DELAY)
+    bus.write_byte(I2C_ADDR, (bits | ENABLE))
+    time.sleep(E_PULSE)
+    bus.write_byte(I2C_ADDR, (bits & ~ENABLE))
+    time.sleep(E_DELAY)
+
+
+def lcd_string(message, line):
+    # Send string to display
+    message = message.ljust(LCD_WIDTH, " ")
+
+    lcd_byte(line, LCD_CMD)
+
+    for i in range(LCD_WIDTH):
+        lcd_byte(ord(message[i]), LCD_CHR)
+        time.sleep(0.1)
 
 def main():
-  analytics = initialize_analyticsreporting()
-  response = get_report(analytics)
-  print_response(response)
+
+  global firstLine
+  global ID_REQUEST 
+
+ 
+  infoFactory = InfoFactory()
+  idInfoMax = infoFactory.getNumberOfInfo()
+  idInfo = 1
+  
+  global ID_REQUEST 
+
+  lcd_init() 
+
+  while True:
+
+    #On repart de 0 si on a affiché la dernière info
+    #sinon on passe à la suivante
+    if idInfo == idInfoMax:
+     idInfo = 1
+    else:
+      idInfo = idInfo + 1
+
+    info = []
+    #On récupère l'info à afficher
+    info = infoFactory.generateInfo(idInfo)
+
+    #On affiche l'info
+    lcd_string(info[0],LCD_LINE_1)
+
+    if len(info)>1:
+     lcd_string(info[1],LCD_LINE_2)
+  
+    time.sleep(10)
+
+    #On efface le contenu de l'écran
+    lcd_init()
 
 if __name__ == '__main__':
   main()
+
+
