@@ -1,5 +1,6 @@
 from infoFactory import InfoFactory
 
+
 import smbus2 as smbus
 import time
 import math
@@ -106,12 +107,6 @@ def main():
     #On récupère l'info à afficher
     info = infoFactory.generateInfo(idInfo)
 
-
-    #Debug de l'info
-    print (str(idInfo) + ' ' + info[0])
-    if len(info)>1:
-      print (str(idInfo) + ' ' + info[1])
-
     #On affiche l'info
     lcd_string(info[0],LCD_LINE_1)
 
@@ -121,8 +116,7 @@ def main():
     time.sleep(10)
 
     #On efface le contenu de l'écran
-    lcd_init() 
-    time.sleep(1)
+    lcd_init()
 
 if __name__ == '__main__':
   main()
