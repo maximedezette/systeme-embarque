@@ -91,15 +91,14 @@ def main():
   
   global ID_REQUEST 
 
-  while True:
+  lcd_init() 
 
-    #On efface le contenu de l'écran
-    lcd_init()
+  while True:
 
     #On repart de 0 si on a affiché la dernière info
     #sinon on passe à la suivante
     if idInfo == idInfoMax:
-     idInfo = 0
+     idInfo = 1
     else:
       idInfo = idInfo + 1
 
@@ -107,13 +106,23 @@ def main():
     #On récupère l'info à afficher
     info = infoFactory.generateInfo(idInfo)
 
+
+    #Debug de l'info
+    print (str(idInfo) + ' ' + info[0])
+    if len(info)>1:
+      print (str(idInfo) + ' ' + info[1])
+
     #On affiche l'info
     lcd_string(info[0],LCD_LINE_1)
 
     if len(info)>1:
      lcd_string(info[1],LCD_LINE_2)
   
-    time.sleep(5)  
+    time.sleep(10)
+
+    #On efface le contenu de l'écran
+    lcd_init() 
+    time.sleep(1)
 
 if __name__ == '__main__':
   main()
