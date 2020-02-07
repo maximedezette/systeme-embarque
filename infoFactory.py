@@ -5,7 +5,12 @@ from telegramBotManager import TelegramBotManager
 import socket
 import os
 import requests 
-from datetime import datetime
+import sqlite3
+
+import constants
+
+from datetime import datetime 
+from sqlite3 import Error
 
 # Telegram group ID
 TELEGRAM_GROUP_ID = os.environ.get('TelegramAperoTechGroupId')
@@ -13,10 +18,11 @@ TELEGRAM_GROUP_ID = os.environ.get('TelegramAperoTechGroupId')
 
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 KEY_FILE_LOCATION = 'arboreal-drake-711-439eedbba062.json'
-VIEW_ID = '199779379'
+
 
 tbm = TelegramBotManager()
 
+con = sqlite3.connect('monitorwebsite.db')
 
 def initialize_analyticsreporting():
    """Initializes an Analytics Reporting API V4 service object.
@@ -30,8 +36,11 @@ def initialize_analyticsreporting():
    analytics = build('analyticsreporting', 'v4', credentials=credentials)
 
    return analytics
+
+
+
   
-def get_report(analytics,id):
+def get_report(request,analytics,id):
     """Queries the Analytics Reporting API V4.
 
     Args:
@@ -62,36 +71,41 @@ def print_response(response):
         for metricHeader, value in zip(metricHeaders, values.get('values')):
           print (metricHeader.get('name') + ': ' + value)
 
-#To create query https://ga-dev-tools.appspot.com/request-composer/
-request = {}
-request[1]={
-        'reportRequests': [
-        {
-          'viewId': VIEW_ID,
-          'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'today'}],
-          'metrics': [{'expression': 'ga:sessions'}],
-          'dimensions': [{'name': 'ga:country'}]
-        }]
+
+
+def getRequest():
+  #To create query https://ga-dev-tools.appspot.com/request-composer/
+  request = {}
+  request[1]={
+          'reportRequests': [
+          {
+            'viewId': constants.VIEW_ID,
+            'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'today'}],
+            'metrics': [{'expression': 'ga:sessions'}],
+            'dimensions': [{'name': 'ga:country'}]
+          }]
+        }
+  request[2]={
+    "reportRequests": [
+      {
+        "viewId": constants.VIEW_ID,
+        "dateRanges": [
+          {
+            "startDate": "30daysAgo",
+            "endDate": "yesterday"
+          }
+        ],
+        "metrics": [
+          {
+            "expression": "ga:users",
+            "alias": ""
+          }
+        ]
       }
-request[2]={
-  "reportRequests": [
-    {
-      "viewId": "199779379",
-      "dateRanges": [
-        {
-          "startDate": "30daysAgo",
-          "endDate": "yesterday"
-        }
-      ],
-      "metrics": [
-        {
-          "expression": "ga:users",
-          "alias": ""
-        }
-      ]
-    }
-  ]
-}
+    ]
+  }
+  return request
+
 def get_ip_address():
     return [
              (s.connect(('8.8.8.8', 53)),
@@ -100,8 +114,28 @@ def get_ip_address():
                   [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]
            ][0][1]
 
+ 
+def sql_fetch(con):
+ 
+    constants.VIEW_ID
+    
+    cursorObj = con.cursor()
+ 
+    cursorObj.execute('SELECT * FROM constants')
+ 
+    rows = cursorObj.fetchall()
+
+    for row in rows:
+      if row[0] == 'VIEW_ID':
+        constants.VIEW_ID = row[1]
+      elif row[0] == 'TELEGRAM_GROUP_ID':
+        constants.TELEGRAM_GROUP_ID = row[1]
+        
+
 class InfoFactory:
 
+
+  sql_fetch(con)
   numberOfInfo = 4
 
   def getNumberOfInfo(self):
@@ -109,17 +143,19 @@ class InfoFactory:
 
   def generateInfo(self,idInfo):
     analytics = initialize_analyticsreporting()
+    request = getRequest()
+    
 
     info = []
 
     if idInfo == 1:
-     response = get_report(analytics,idInfo)
+     response = get_report(request,analytics,idInfo)
      numberOfUserLastWeek = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
      info.insert(0,"SEMAINE DERNIERE")
      info.insert(1,str(numberOfUserLastWeek) + " utilisateurs")
 
     elif idInfo == 2:
-     response = get_report(analytics,idInfo)
+     response = get_report(request,analytics,idInfo)
      numberOfUserLastWeek = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
      info.insert(0,"MOIS DERNIER")
      info.insert(1,str(numberOfUserLastWeek) + " utilisateurs")
@@ -128,17 +164,17 @@ class InfoFactory:
      ip = get_ip_address()
      info.insert(0,datetime.now().strftime('%b %d  %H:%M:%S\n'))
      info.insert(1,'IP {}'.format(ip))
+     
     
     elif idInfo == 4:
       hostname = "apero-tech.fr"
-      httpStatusOfHost = requests.get("https://"+hostname).status_code
-      # Call method for send message
-      print(httpStatusOfHost)
+      httpStatusOfHost = requests.get("https://"+hostname).status_code      
       if httpStatusOfHost == 200:
         info.insert(0, hostname)
         info.insert(1, "Est up :)")
       else:
-        tbm.send_message_to_group(TELEGRAM_GROUP_ID, "@Vinvin27 Le site est down!!")
+      # Call method for send message
+        tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID, "@Vinvin27 Le site est down!!")
         info.insert(0, hostname)
         info.insert(1, "Est down !! :(")
 

@@ -1,0 +1,2 @@
+VIEW_ID = ''
+TELEGRAM_GROUP_ID= ''
