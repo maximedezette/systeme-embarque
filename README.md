@@ -13,7 +13,7 @@ Raspbian Buster Lite:
 Minimum python version requierment 3.7.x
 
 ### **Python packages requierments**
-**pip**
+**[pip](https://pip.pypa.io/en/stable/installing/)**
 ``` bash
 $ sudo apt install python3-pip -y
 ```
