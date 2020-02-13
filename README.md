@@ -4,10 +4,10 @@ Raspberry Pi 3
 
 ### **OS**
 Raspbian Buster Lite:
-- Version: February 2020
-- Release date: 2020-02-05
-- Kernel version: 4.19
-- Size: 433 MB
+- **Version:** February 2020
+- **Release date:** 2020-02-05
+- **Kernel version:** 4.19
+- **Size:** 433 MB
 
 ## **Python requierments**
 Minimum python version requierment 3.7.x
