@@ -10,6 +10,7 @@ class TelegramBotManager:
             self = telegram.Bot(token=constants.TELEGRAM_BOT_TOKEN)
         except:
             print("Le bot n'a pas pu être initialisé")
+            
     # Method for send message with bot on specify group
     def send_message_to_group(self, id_group, message):
         # Send message to group
