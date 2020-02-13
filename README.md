@@ -76,7 +76,10 @@ $ sudo i2cdetect -y 1 # if number display 27 in the console, the address is 0x27
 
 ### **Get project**
 ```bash
-git clone https://github.com/python-telegram-bot/python-telegram-bot
+# SSH
+git clone git@github.com:maximedezette/systeme-embarque.git
+# HTTPS
+git clone https://github.com/maximedezette/systeme-embarque.git
 ```
 or 
 
