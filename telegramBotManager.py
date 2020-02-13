@@ -1,12 +1,15 @@
 import telegram
 import os
+import constants
 
 class TelegramBotManager:
 
-    TELEGRAM_BOT_TOKEN = os.environ.get('TelegramBotToken')
     # Initialize Telegram bot
-    bot = telegram.Bot(token=TELEGRAM_BOT_TOKEN)
-
+    def __init__(self):
+        try:
+            self = telegram.Bot(token=constants.TELEGRAM_BOT_TOKEN)
+        except:
+            print("Le bot n'a pas pu être initialisé")
     # Method for send message with bot on specify group
     def send_message_to_group(self, id_group, message):
         # Send message to group

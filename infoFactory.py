@@ -5,7 +5,7 @@ from telegramBotManager import TelegramBotManager
 import socket
 import os
 import requests 
-import sqlite3
+
 
 import constants
 
@@ -20,9 +20,9 @@ SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 KEY_FILE_LOCATION = 'arboreal-drake-711-439eedbba062.json'
 
 
-tbm = TelegramBotManager()
 
-con = sqlite3.connect('monitorwebsite.db')
+
+
 
 def initialize_analyticsreporting():
    """Initializes an Analytics Reporting API V4 service object.
@@ -115,27 +115,14 @@ def get_ip_address():
            ][0][1]
 
  
-def sql_fetch(con):
- 
-    constants.VIEW_ID
-    
-    cursorObj = con.cursor()
- 
-    cursorObj.execute('SELECT * FROM constants')
- 
-    rows = cursorObj.fetchall()
 
-    for row in rows:
-      if row[0] == 'VIEW_ID':
-        constants.VIEW_ID = row[1]
-      elif row[0] == 'TELEGRAM_GROUP_ID':
-        constants.TELEGRAM_GROUP_ID = row[1]
+    
         
 
 class InfoFactory:
 
 
-  sql_fetch(con)
+  
   numberOfInfo = 4
 
   def getNumberOfInfo(self):
@@ -149,16 +136,22 @@ class InfoFactory:
     info = []
 
     if idInfo == 1:
-     response = get_report(request,analytics,idInfo)
-     numberOfUserLastWeek = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
-     info.insert(0,"SEMAINE DERNIERE")
-     info.insert(1,str(numberOfUserLastWeek) + " utilisateurs")
+      try:
+        response = get_report(request,analytics,idInfo)
+        numberOfUserLastWeek = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
+        info.insert(0,"SEMAINE DERNIERE")
+        info.insert(1,str(numberOfUserLastWeek) + " utilisateurs")
+      except:
+        print ("Erreur lors de la recuperation des visiteurs de la semaine dernière")
 
     elif idInfo == 2:
-     response = get_report(request,analytics,idInfo)
-     numberOfUserLastWeek = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
-     info.insert(0,"MOIS DERNIER")
-     info.insert(1,str(numberOfUserLastWeek) + " utilisateurs")
+     try:
+      response = get_report(request,analytics,idInfo)
+      numberOfUserLastWeek = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
+      info.insert(0,"MOIS DERNIER")
+      info.insert(1,str(numberOfUserLastWeek) + " utilisateurs")
+     except:
+       print ("Erreur lors de la recuperation des visiteurs du mois dernier")
 
     elif idInfo ==3:
      ip = get_ip_address()
@@ -174,9 +167,13 @@ class InfoFactory:
         info.insert(1, "Est up :)")
       else:
       # Call method for send message
-        tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID, "@Vinvin27 Le site est down!!")
-        info.insert(0, hostname)
-        info.insert(1, "Est down !! :(")
+        try:
+          tbm = TelegramBotManager()
+          tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID, "@Vinvin27 Le site est down!!")
+          info.insert(0, hostname)
+          info.insert(1, "Est down !! :(")
+        except:
+          print ("Erreur lors de l'envoi de message par le Bot Telegram")
 
     else:
      info.insert(0,"ERREUR")
