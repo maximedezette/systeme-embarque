@@ -1,7 +1,6 @@
 from infoFactory import InfoFactory
 
-
-import smbus2 as smbus
+import smbus as smbus
 import time
 import math
 
@@ -11,8 +10,8 @@ I2C_ADDR = 0x27     # I2C device address, if any error, change this address to 0
 LCD_WIDTH = 16      # Maximum characters per line
 
 # Define some device constants
-LCD_CHR = 1     # Mode - Sending data
-LCD_CMD = 0     # Mode - Sending command
+LCD_CHR = 1         # Mode - Sending data
+LCD_CMD = 0         # Mode - Sending command
 
 LCD_LINE_1 = 0x80   # LCD RAM address for the 1st line
 LCD_LINE_2 = 0xC0   # LCD RAM address for the 2nd line
@@ -21,7 +20,7 @@ LCD_LINE_4 = 0xD4   # LCD RAM address for the 4th line
 
 LCD_BACKLIGHT = 0x08  # On
 
-ENABLE = 0b00000100     # Enable bit
+ENABLE = 0b00000100   # Enable bit
 
 # Timing constants
 E_PULSE = 0.0005
@@ -89,8 +88,6 @@ def main():
   infoFactory = InfoFactory()
   idInfoMax = infoFactory.getNumberOfInfo()
   idInfo = 1
-  
-  global ID_REQUEST 
 
   lcd_init() 
 
@@ -120,5 +117,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-
-
