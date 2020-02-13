@@ -43,11 +43,34 @@ $ pip install --upgrade oauth2client
 $ pip install python-telegram-bot --upgrade
 ```
 
-**[smbus2](#)**
+**[smbus2](https://www.gotronic.fr/pj2-sbc-lcd20x4-fr-1440.pdf)**
 ``` bash
-# find which package to install
-$ pip 
+# GPIO library
+$ sudo apt-get install python-pip python-dev build-essential
+$ sudo pip install RPi.GPIO
+
+# Python library
+$ sudo apt-get install python-imaging
+
+# I2C library
+$ sudo apt-get install python-smbus i2c-tools
+
+# Enable I2C bus in Raspberry Pi configuration
+$ sudo raspi-config # select 'Advanced options' > 'I2C'
+
+# Update modules file
+$ sudo nano /etc/modules
+# Paste the lines
+i2c-bcm2708
+i2c-dev
+
+# Restart Raspberry Pi
+$ sudo shutdown -hr now
+
+# Get memory address of i2c display
+$ sudo i2cdetect -y 1 # if number display 27 in the console, the address is 0x27
 ```
+
 
 ## **User project**
 
