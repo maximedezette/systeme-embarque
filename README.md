@@ -71,6 +71,25 @@ $ sudo shutdown -hr now
 $ sudo i2cdetect -y 1 # if number display 27 in the console, the address is 0x27
 ```
 
+### Installation SQLite
+```
+sudo apt-get install sqlite3
+```
+
+### Enrichissement de la BDD
+```
+sqlite3 monitorwebsite.db 
+
+sqlite> BEGIN;
+sqlite> CREATE TABLE constants(key TEXT PRIMARY,value TEXT);
+sqlite> COMMIT;
+
+sqlite> BEGIN;
+sqlite> INSERT INTO constants(key,value) VALUES ('VIEW_ID','XXXXXXXX');
+sqlite> INSERT INTO constants(key,value) VALUES ('TELEGRAM_GROUP_ID','XXXXXXXX');
+sqlite> INSERT INTO constants(key,value) VALUES ('TELEGRAM_BOT_TOKEN','XXXXXXXX');
+sqlite> COMMIT;
+```
 
 ## **Use project**
 
