@@ -46,20 +46,20 @@ $ pip install python-telegram-bot --upgrade
 **[smbus2](https://www.gotronic.fr/pj2-sbc-lcd20x4-fr-1440.pdf)**
 ``` bash
 # GPIO library
-$ sudo apt-get install python-pip python-dev build-essential
+$ sudo apt install python3-dev build-essential
 $ sudo pip install RPi.GPIO
 
 # Python library
-$ sudo apt-get install python-imaging
+$ sudo apt install python3-pil
 
 # I2C library
-$ sudo apt-get install python-smbus i2c-tools
+$ sudo apt install python3-smbus i2c-tools
 
 # Enable I2C bus in Raspberry Pi configuration
-$ sudo raspi-config # select 'Advanced options' > 'I2C'
+$ sudo raspi-config # select 'Interfacing Options' > 'I2C'
 
 # Update modules file
-$ sudo nano /etc/modules
+$ sudo vim /etc/modules
 # Paste the lines
 i2c-bcm2708
 i2c-dev
