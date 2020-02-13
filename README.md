@@ -38,12 +38,7 @@ $ pip install --upgrade google-api-python-client google-auth-httplib2 google-aut
 $ pip install --upgrade oauth2client
 ```
 
-**[python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot)**
-``` bash
-$ pip install python-telegram-bot --upgrade
-```
-
-**[smbus2](https://www.gotronic.fr/pj2-sbc-lcd20x4-fr-1440.pdf)**
+**[smbus](https://www.gotronic.fr/pj2-sbc-lcd20x4-fr-1440.pdf)**
 ``` bash
 # GPIO library
 $ sudo apt install python3-dev build-essential
@@ -71,6 +66,25 @@ $ sudo shutdown -hr now
 $ sudo i2cdetect -y 1 # if number display 27 in the console, the address is 0x27
 ```
 
+### Installation SQLite
+```
+$ sudo apt install sqlite3
+```
+
+### Enrichissement de la BDD
+```
+sqlite3 monitorwebsite.db 
+
+sqlite> BEGIN;
+sqlite> CREATE TABLE constants(key TEXT PRIMARY,value TEXT);
+sqlite> COMMIT;
+
+sqlite> BEGIN;
+sqlite> INSERT INTO constants(key,value) VALUES ('VIEW_ID','XXXXXXXX');
+sqlite> INSERT INTO constants(key,value) VALUES ('TELEGRAM_GROUP_ID','XXXXXXXX');
+sqlite> INSERT INTO constants(key,value) VALUES ('TELEGRAM_BOT_TOKEN','XXXXXXXX');
+sqlite> COMMIT;
+```
 
 ## **Use project**
 
