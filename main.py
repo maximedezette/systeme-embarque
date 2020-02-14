@@ -1,10 +1,10 @@
 from infoFactory import InfoFactory
-from sqlite3 import Error
+from constantsManager import ConstantsManager
 
 import smbus as smbus
 import time
 import math
-import sqlite3
+
 import constants
 
 
@@ -36,25 +36,8 @@ bus = smbus.SMBus(1)    # Rev 2 Pi uses 1
 
 
 
-def initConsts(con):
- 
-    constants.VIEW_ID
-    
-    cursorObj = con.cursor()
- 
-    cursorObj.execute('SELECT * FROM constants')
- 
-    rows = cursorObj.fetchall()
 
-    for row in rows:
-      print(row)
-      if row[0] == 'VIEW_ID':
-        constants.VIEW_ID = row[1]
-      elif row[0] == 'TELEGRAM_GROUP_ID':
-        constants.TELEGRAM_GROUP_ID = row[1]
-      elif row[0] == 'TELEGRAM_BOT_TOKEN':
-        constants.TELEGRAM_BOT_TOKEN = row[1]
-    print(constants.TELEGRAM_BOT_TOKEN)
+
 
 def lcd_init():
     # Initialise display
@@ -106,12 +89,8 @@ def lcd_string(message, line):
 
 def main():
 
-  try:
-    con = sqlite3.connect('monitorwebsite.db')
-  except:
-    print("Impossible de se connecter à la BDD")
-
-  initConsts(con)
+  constantManager = ConstantsManager()
+  constantManager.initConstantes()
 
   global firstLine
   global ID_REQUEST 
