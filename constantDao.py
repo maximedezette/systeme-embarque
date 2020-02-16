@@ -2,12 +2,14 @@ import os
 import sqlite3
 
 class ConstantDao:
-    sqliteConnection = sqlite3.connect("embeded_conception.db")
+    DB_FILE = "embeded_conception.db"
+    EXCEPTION_TITLE = "-- Exception: "
+    sqlite_connection = sqlite3.connect(DB_FILE)
     cursor = None
 
     def __init__(self):
         try:
-            self.cursor = self.sqliteConnection.cursor()
+            self.cursor = self.sqlite_connection.cursor()
         except Exception as exception:
             print(str(exception))
 
@@ -20,11 +22,10 @@ class ConstantDao:
             print("-- Get key: " + str(key))
             self.cursor.execute("SELECT key,value FROM constants WHERE key = ?", (key,))
             results = self.cursor.fetchall()
-            if len(results) > 0:
-                if results[0][0] == key:
-                    return results[0][1]
+            if len(results) > 0 & results[0][0] == key:
+                return results[0][1]
         except Exception as exception:
-            print("-- Exception: " + str(exception))
+            print(self.EXCEPTION_TITLE + str(exception))
             return None
 
 
@@ -35,9 +36,9 @@ class ConstantDao:
         try:
             print("-- Update constant " + str(key) + " into database")
             self.cursor.execute("INSERT INTO constants(value) VALUES (?) WHERE key = ?", (value, key))
-            self.sqliteConnection.commit()
+            self.sqlite_connection.commit()
         except Exception as exception:
-            print("-- Exception: " + str(exception))
+            print(self.EXCEPTION_TITLE + str(exception))
 
 
     def initialize_database(self):
@@ -70,9 +71,9 @@ class ConstantDao:
                 print("-- Insert key TELEGRAM_BOT_TOKEN")
                 self.cursor.execute("INSERT INTO constants(key, value) VALUES ('TELEGRAM_BOT_TOKEN', '');")
 
-            self.sqliteConnection.commit()
+            self.sqlite_connection.commit()
         except Exception as exception:
-            print("-- Exception: " + str(exception))
+            print(self.EXCEPTION_TITLE + str(exception))
 
 
     def reset_database(self):
@@ -81,60 +82,57 @@ class ConstantDao:
         """
         try:
             print("-- Reset database")
-            if self.sqliteConnection != None:
+            if self.sqlite_connection != None:
                 print("-- Close SQLite connection")
-                self.sqliteConnection.close()
+                self.sqlite_connection.close()
                 
             print("-- Drop database file")
-            os.remove("embeded_conception.db")
+            os.remove(self.DB_FILE)
         except Exception as exception:
-            print("Exception: " + str(exception))
+            print(self.EXCEPTION_TITLE + str(exception))
 
 
     def database_verification(self):
         """
         Verify if database existe and constants are not empty
         """
-        isOk = os.path.exists("embeded_conception.db")
+        is_ok = os.path.exists(self.DB_FILE)
 
         self.cursor.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='constants';")
         results = self.cursor.fetchall()
         if len(results) == 0:
-            isOk = False
+            is_ok = False
         
         self.cursor.execute("SELECT key FROM constants WHERE key = 'VIEW_ID';")
         results = self.cursor.fetchall()
         if len(results) == 0:
-            isOk = False
+            is_ok = False
         
         self.cursor.execute("SELECT key FROM constants WHERE key = 'TELEGRAM_GROUP_ID';")
         results = self.cursor.fetchall()
         if len(results) == 0:
-            isOk = False
+            is_ok = False
         
         self.cursor.execute("SELECT key FROM constants WHERE key = 'TELEGRAM_BOT_TOKEN';")
         results = self.cursor.fetchall()
         if len(results) == 0:
-            isOk = False
+            is_ok = False
         
-        if isOk:
+        if is_ok:
             # Check VIEW_ID constant
-            viewId = self.get_constant("VIEW_ID")
+            view_id = self.get_constant("VIEW_ID")
             # Check TELEGRAM_GROUP_ID constant
-            telegramGroupId = self.get_constant("TELEGRAM_GROUP_ID")
+            telegram_group_id = self.get_constant("TELEGRAM_GROUP_ID")
             # Check TELEGRAM_BOT_TOKEN constant
-            telegramBotToken = self.get_constant("TELEGRAM_BOT_TOKEN")
+            telegram_bot_token = self.get_constant("TELEGRAM_BOT_TOKEN")
             
-            if (viewId == None or viewId == '' or viewId == ' '):
-                isOk = False
+            if (view_id == None or view_id == '' or view_id == ' '):
+                is_ok = False
 
-            if (telegramGroupId == None or telegramGroupId == '' or telegramGroupId == ' '):
-                isOk = False
+            if (telegram_group_id == None or telegram_group_id == '' or telegram_group_id == ' '):
+                is_ok = False
                 
-            if (telegramBotToken == None or telegramBotToken == '' or telegramBotToken == ' '):
-                isOk = False
+            if (telegram_bot_token == None or telegram_bot_token == '' or telegram_bot_token == ' '):
+                is_ok = False
 
-        return isOk
-
-
-constantDao = ConstantDao()
+        return is_ok
