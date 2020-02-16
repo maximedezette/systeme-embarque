@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import constants
 
 class ConstantDao:
     DB_FILE = "embeded_conception.db"
@@ -46,6 +47,9 @@ class ConstantDao:
         Create table and add constants keys (VIEW_ID, TELEGRAM_GROUP_ID, TELEGRAM_BOT_TOKEN)
         """
         try:
+            SELECT_QUERY = "SELECT key FROM constants WHERE key = ?;"
+            INSERT_QUERY = "INSERT INTO constants(key, value) VALUES (?, '');"
+
             print("-- Database initialization")
             self.cursor.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='constants';")
             results = self.cursor.fetchall()
@@ -53,23 +57,23 @@ class ConstantDao:
                 print("-- Create table constants")
                 self.cursor.execute("CREATE TABLE constants(key TEXT NOT NULL UNIQUE, value TEXT NOT NULL);")
 
-            self.cursor.execute("SELECT key FROM constants WHERE key = 'VIEW_ID';")
+            self.cursor.execute(SELECT_QUERY, (constants.STR_VIEW_ID,))
             results = self.cursor.fetchall()
             if len(results) == 0:
                 print("-- Insert key VIEW_ID")
-                self.cursor.execute("INSERT INTO constants(key, value) VALUES ('VIEW_ID', '');")
+                self.cursor.execute(INSERT_QUERY, (constants.STR_VIEW_ID,))
 
-            self.cursor.execute("SELECT key FROM constants WHERE key = 'TELEGRAM_GROUP_ID';")
+            self.cursor.execute(SELECT_QUERY, (constants.STR_TELEGRAM_GROUP_ID,))
             results = self.cursor.fetchall()
             if len(results) == 0:
                 print("-- Insert key TELEGRAM_GROUP_ID")
-                self.cursor.execute("INSERT INTO constants(key, value) VALUES ('TELEGRAM_GROUP_ID', '');")
+                self.cursor.execute(INSERT_QUERY, (constants.STR_TELEGRAM_GROUP_ID,))
 
-            self.cursor.execute("SELECT key FROM constants WHERE key = 'TELEGRAM_BOT_TOKEN';")
+            self.cursor.execute(SELECT_QUERY, (constants.STR_TELEGRAM_BOT_TOKEN,))
             results = self.cursor.fetchall()
             if len(results) == 0:
                 print("-- Insert key TELEGRAM_BOT_TOKEN")
-                self.cursor.execute("INSERT INTO constants(key, value) VALUES ('TELEGRAM_BOT_TOKEN', '');")
+                self.cursor.execute(INSERT_QUERY, (constants.STR_TELEGRAM_BOT_TOKEN,))
 
             self.sqlite_connection.commit()
         except Exception as exception:
@@ -96,6 +100,7 @@ class ConstantDao:
         """
         Verify if database existe and constants are not empty
         """
+        SELECT_QUERY = "SELECT key FROM constants WHERE key = ?;"
         is_ok = os.path.exists(self.DB_FILE)
 
         self.cursor.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='constants';")
@@ -103,28 +108,28 @@ class ConstantDao:
         if len(results) == 0:
             is_ok = False
         
-        self.cursor.execute("SELECT key FROM constants WHERE key = 'VIEW_ID';")
+        self.cursor.execute(SELECT_QUERY, (constants.STR_VIEW_ID,))
         results = self.cursor.fetchall()
         if len(results) == 0:
             is_ok = False
         
-        self.cursor.execute("SELECT key FROM constants WHERE key = 'TELEGRAM_GROUP_ID';")
+        self.cursor.execute(SELECT_QUERY, (constants.STR_TELEGRAM_GROUP_ID,))
         results = self.cursor.fetchall()
         if len(results) == 0:
             is_ok = False
         
-        self.cursor.execute("SELECT key FROM constants WHERE key = 'TELEGRAM_BOT_TOKEN';")
+        self.cursor.execute(SELECT_QUERY, (constants.STR_TELEGRAM_BOT_TOKEN,))
         results = self.cursor.fetchall()
         if len(results) == 0:
             is_ok = False
         
         if is_ok:
             # Check VIEW_ID constant
-            view_id = self.get_constant("VIEW_ID")
+            view_id = self.get_constant(constants.STR_VIEW_ID)
             # Check TELEGRAM_GROUP_ID constant
-            telegram_group_id = self.get_constant("TELEGRAM_GROUP_ID")
+            telegram_group_id = self.get_constant(constants.STR_TELEGRAM_GROUP_ID)
             # Check TELEGRAM_BOT_TOKEN constant
-            telegram_bot_token = self.get_constant("TELEGRAM_BOT_TOKEN")
+            telegram_bot_token = self.get_constant(constants.STR_TELEGRAM_BOT_TOKEN)
             
             if (view_id == None or view_id == '' or view_id == ' '):
                 is_ok = False

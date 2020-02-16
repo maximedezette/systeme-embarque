@@ -1,7 +1,6 @@
-from infoFactory import InfoFactory
-from screenManager import ScreenManager
-from constantsManager import ConstantsManager
-
+from info_factory import InfoFactory
+from screen_manager import ScreenManager
+from constants_manager import ConstantsManager
 
 import time
 import constants
@@ -9,40 +8,40 @@ import constants
 
 def main():
 
-  constantManager = ConstantsManager()
-  screenManager = ScreenManager()
+  constants_manager = ConstantsManager()
+  screen_manager = ScreenManager()
 
-  constantManager.initConstantes()
+  constants_manager.init_constantes()
 
-  infoFactory = InfoFactory()
-  idInfoMax = infoFactory.getNumberOfInfo()
-  idInfo = 2
+  info_factory = InfoFactory()
+  id_info_max = info_factory.getNumberOfInfo()
+  id_info = 2
   
-  screenManager.lcd_init() 
+  screen_manager.lcd_init() 
 
   while True:
 
     #On repart de 0 si on a affiché la dernière info
     #sinon on passe à la suivante
-    if idInfo == idInfoMax:
-     idInfo = 1
+    if id_info == id_info_max:
+     id_info = 1
     else:
-      idInfo = idInfo + 1
+      id_info = id_info + 1
 
     info = []
     #On récupère l'info à afficher
-    info = infoFactory.generateInfo(idInfo)
+    info = info_factory.generateInfo(id_info)
 
     #On affiche l'info
-    screenManager.print_first_line(info[0])
+    screen_manager.print_first_line(info[0])
 
     if len(info)>1:
-      screenManager.print_second_line(info[1])
+      screen_manager.print_second_line(info[1])
   
     time.sleep(10)
 
     #On efface le contenu de l'écran
-    screenManager.lcd_init()
+    screen_manager.lcd_init()
 
 if __name__ == '__main__':
   main()
