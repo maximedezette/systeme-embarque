@@ -26,8 +26,6 @@ bus = smbus.SMBus(1)    # Rev 2 Pi uses 1
     
 class ScreenManager:
 
-
-
     def lcd_init(self):
         # Initialise display
         self.lcd_byte(0x33, LCD_CMD)     # 110011 Initialise
@@ -76,8 +74,10 @@ class ScreenManager:
             self.lcd_byte(ord(message[i]), LCD_CHR)
             time.sleep(0.1)
 
+
     def print_first_line(self,message):
         self.lcd_string(message,LCD_LINE_1)
+
 
     def print_second_line(self,message):
         self.lcd_string(message,LCD_LINE_2)

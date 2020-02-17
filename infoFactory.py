@@ -5,8 +5,6 @@ from telegramBotManager import TelegramBotManager
 import socket
 import os
 import requests 
-
-
 import constants
 
 from datetime import datetime 
@@ -14,17 +12,11 @@ from sqlite3 import Error
 
 # Telegram group ID
 TELEGRAM_GROUP_ID = os.environ.get('TelegramAperoTechGroupId')
-
-
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 KEY_FILE_LOCATION = 'arboreal-drake-711-439eedbba062.json'
 
 
-
-
-
-
-def initialize_analyticsreporting():
+def initialize_analytics_reporting():
    """Initializes an Analytics Reporting API V4 service object.
 
     Returns:
@@ -38,9 +30,7 @@ def initialize_analyticsreporting():
    return analytics
 
 
-
-  
-def get_report(request,analytics,id):
+def get_report(request, analytics,id):
     """Queries the Analytics Reporting API V4.
 
     Args:
@@ -52,28 +42,28 @@ def get_report(request,analytics,id):
         body=request[id]
     ).execute()
 
+
 def print_response(response):
   """Parses and prints the Analytics Reporting API V4 response.
   Args:
     response: An Analytics Reporting API V4 response.
   """
   for report in response.get('reports', []):
-    columnHeader = report.get('columnHeader', {})
-    dimensionHeaders = columnHeader.get('dimensions', [])
-    metricHeaders = columnHeader.get('metricHeader', {}).get('metricHeaderEntries', [])
+    column_header = report.get('columnHeader', {})
+    dimension_headers = column_header.get('dimensions', [])
+    metric_headers = column_header.get('metricHeader', {}).get('metricHeaderEntries', [])
     for row in report.get('data', {}).get('rows', []):
       dimensions = row.get('dimensions', [])
-      dateRangeValues = row.get('metrics', [])
-      for header, dimension in zip(dimensionHeaders, dimensions):
+      date_range_values = row.get('metrics', [])
+      for header, dimension in zip(dimension_headers, dimensions):
         print (header + ': ' + dimension)
-      for i, values in enumerate(dateRangeValues):
+      for i, values in enumerate(date_range_values):
         print ('Date range: ' + str(i))
-        for metricHeader, value in zip(metricHeaders, values.get('values')):
-          print (metricHeader.get('name') + ': ' + value)
+        for metric_header, value in zip(metric_headers, values.get('values')):
+          print (metric_header.get('name') + ': ' + value)
 
 
-
-def getRequest():
+def get_request():
   #To create query https://ga-dev-tools.appspot.com/request-composer/
   request = {}
   request[1]={
@@ -106,6 +96,7 @@ def getRequest():
   }
   return request
 
+
 def get_ip_address():
     return [
              (s.connect(('8.8.8.8', 53)),
@@ -114,55 +105,50 @@ def get_ip_address():
                   [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]
            ][0][1]
 
- 
-
-    
-        
 
 class InfoFactory:
 
+  number_of_info = 4
 
-  
-  numberOfInfo = 4
 
-  def getNumberOfInfo(self):
-    return self.numberOfInfo
+  def get_number_of_info(self):
+    return self.number_of_info
 
-  def generateInfo(self,idInfo):
-    analytics = initialize_analyticsreporting()
-    request = getRequest()
+
+  def generate_info(self, id_info):
+    analytics = initialize_analytics_reporting()
+    request = get_request()
     
-
     info = []
 
-    if idInfo == 1:
+    if id_info == 1:
       try:
-        response = get_report(request,analytics,idInfo)
-        numberOfUserLastWeek = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
+        response = get_report(request,analytics, id_info)
+        number_of_user_last_week = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
         info.insert(0,"SEMAINE DERNIERE")
-        info.insert(1,str(numberOfUserLastWeek) + " utilisateurs")
+        info.insert(1,str(number_of_user_last_week) + " utilisateurs")
       except:
         print ("Erreur lors de la recuperation des visiteurs de la semaine dernière")
 
-    elif idInfo == 2:
+    elif id_info == 2:
      try:
-      response = get_report(request,analytics,idInfo)
-      numberOfUserLastWeek = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
+      response = get_report(request,analytics, id_info)
+      number_of_user_last_week = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
       info.insert(0,"MOIS DERNIER")
-      info.insert(1,str(numberOfUserLastWeek) + " utilisateurs")
+      info.insert(1,str(number_of_user_last_week) + " utilisateurs")
      except:
        print ("Erreur lors de la recuperation des visiteurs du mois dernier")
 
-    elif idInfo ==3:
+    elif id_info == 3:
      ip = get_ip_address()
      info.insert(0,datetime.now().strftime('%b %d  %H:%M:%S\n'))
      info.insert(1,'IP {}'.format(ip))
      
     
-    elif idInfo == 4:
+    elif id_info == 4:
       hostname = "apero-tech.fr"
-      httpStatusOfHost = requests.get("https://"+hostname).status_code      
-      if httpStatusOfHost == 200:
+      http_status_of_host = requests.get("https://"+hostname).status_code      
+      if http_status_of_host == 200:
         info.insert(0, hostname)
         info.insert(1, "Est up :)")
       else:
@@ -176,5 +162,5 @@ class InfoFactory:
           print ("Erreur lors de l'envoi de message par le Bot Telegram")
 
     else:
-     info.insert(0,"ERREUR")
+     info.insert(0, "ERREUR")
     return info
