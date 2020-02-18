@@ -3,6 +3,7 @@ import os
 import constants
 
 class TelegramBotManager:
+    print(constants.TELEGRAM_BOT_TOKEN)
     __bot = telegram.Bot(token=constants.TELEGRAM_BOT_TOKEN)
 
     def send_message_to_group(self, id_group, message):

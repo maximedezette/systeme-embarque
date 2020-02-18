@@ -24,7 +24,7 @@ class ConstantDao:
             self.__check_init_cursor()
             self.__cursor.execute("SELECT key, value FROM constants WHERE key = ?;", (key,))
             results = self.__cursor.fetchall()
-            if len(results) > 0 & results[0][0] == key:
+            if (len(results) > 0) & (results[0][0] == key):
                 return results[0][1]
         except Exception as exception:
             print(self.__EXCEPTION_TITLE + str(exception))

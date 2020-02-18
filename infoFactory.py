@@ -7,11 +7,9 @@ import os
 import requests 
 import constants
 
-from datetime import datetime 
-from sqlite3 import Error
+from datetime import datetime
 
 # Telegram group ID
-TELEGRAM_GROUP_ID = os.environ.get('TelegramAperoTechGroupId')
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 KEY_FILE_LOCATION = 'arboreal-drake-711-439eedbba062.json'
 

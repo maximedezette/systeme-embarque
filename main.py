@@ -1,16 +1,26 @@
-from infoFactory import InfoFactory
-from screenManager import ScreenManager
-from constantsManager import ConstantsManager
-
 import time
 import constants
 
+from ui import UI
+from constantsManager import ConstantsManager
+
 
 def main():
-  constants_manager = ConstantsManager()
-  screen_manager = ScreenManager()
+  ui = UI()
 
-  constants_manager.init_constantes()
+  ui.print_message("-- Passphrase for encryption database")
+  cm = ConstantsManager(ui.get_user_entry("Enter passphrase: "))
+  constants.VIEW_ID = cm.getConstantValue(constants.STR_VIEW_ID)
+  constants.TELEGRAM_BOT_TOKEN = cm.getConstantValue(constants.STR_TELEGRAM_BOT_TOKEN)
+  constants.TELEGRAM_GROUP_ID = cm.getConstantValue(constants.STR_TELEGRAM_GROUP_ID)
+
+  print(constants.VIEW_ID)
+
+
+  from infoFactory import InfoFactory
+  from screenManager import ScreenManager
+
+  screen_manager = ScreenManager()
 
   info_factory = InfoFactory()
   id_info_max = info_factory.get_number_of_info()
@@ -40,6 +50,7 @@ def main():
 
     #On efface le contenu de l'écran
     screen_manager.lcd_init()
+
 
 if __name__ == '__main__':
   main()

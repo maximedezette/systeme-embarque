@@ -1,15 +1,20 @@
-import sqlite3
 import constants
 from ui import UI
 from constantDao import  ConstantDao
+from cryptographyUtils import CryptographyUtils
+
 
 class ConstantsManager:
     __constant_dao = ConstantDao()
     __ui = UI()
+    __crypto = None
 
-    def __init__(self):
-        self.init_constantes()
+
+    def __init__(self, passphrase: str):
+      self.__crypto = CryptographyUtils(passphrase)
+      self.init_constantes()
     
+
     def init_constantes(self):
       """
       Verify and initialize database and constants if necessary
@@ -54,13 +59,17 @@ class ConstantsManager:
         self.__ui.print_message("\n-- Insert values in 'constants' table")
 
         view_id = self.__ui.get_user_entry(UI_PRINT.format(constants.STR_VIEW_ID))
-        self.__constant_dao.update_constant(constants.STR_VIEW_ID, view_id)
+        self.__constant_dao.update_constant(constants.STR_VIEW_ID, self.__crypto.encrypt(view_id))
         self.__ui.print_message("")
 
         telegram_bot_token = self.__ui.get_user_entry(UI_PRINT.format(constants.STR_TELEGRAM_BOT_TOKEN))
-        self.__constant_dao.update_constant(constants.STR_TELEGRAM_BOT_TOKEN, telegram_bot_token)
+        self.__constant_dao.update_constant(constants.STR_TELEGRAM_BOT_TOKEN, self.__crypto.encrypt(telegram_bot_token))
         self.__ui.print_message("")
 
         telegram_group_id = self.__ui.get_user_entry(UI_PRINT.format(constants.STR_TELEGRAM_GROUP_ID))
-        self.__constant_dao.update_constant(constants.STR_TELEGRAM_GROUP_ID, telegram_group_id)
+        self.__constant_dao.update_constant(constants.STR_TELEGRAM_GROUP_ID, self.__crypto.encrypt(telegram_group_id))
         self.__ui.print_message("")
+
+
+    def getConstantValue(self, constantKey):
+      return self.__crypto.decrypt(self.__constant_dao.get_constant(constantKey))
