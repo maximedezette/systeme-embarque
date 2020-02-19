@@ -27,7 +27,6 @@ class CryptographyUtils:
     def decrypt(self, token):
         """
         """ 
-        print(token)
         decipher = AES.new(self.__key, AES.MODE_ECB)   
         return unpad(decipher.decrypt(base64.b64decode(token))).decode('utf-8')
 

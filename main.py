@@ -14,9 +14,6 @@ def main():
   constants.TELEGRAM_BOT_TOKEN = cm.getConstantValue(constants.STR_TELEGRAM_BOT_TOKEN)
   constants.TELEGRAM_GROUP_ID = cm.getConstantValue(constants.STR_TELEGRAM_GROUP_ID)
 
-  print(constants.VIEW_ID)
-
-
   from infoFactory import InfoFactory
   from screenManager import ScreenManager
 
