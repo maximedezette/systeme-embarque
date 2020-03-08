@@ -42,6 +42,12 @@ def main():
 
     if len(info)>1:
       screen_manager.print_second_line(info[1])
+
+    if len(info)>2:
+      if(info[2] =="ERROR"):
+        screen_manager.light_on_alert_led()
+      else:
+        screen_manager.light_off_alert_led()
   
     time.sleep(10)
 

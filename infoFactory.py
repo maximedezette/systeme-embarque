@@ -149,6 +149,7 @@ class InfoFactory:
       if http_status_of_host == 200:
         info.insert(0, hostname)
         info.insert(1, "Est up :)")
+        info.insert(2, "OK")
       else:
       # Call method for send message
         try:
@@ -156,6 +157,7 @@ class InfoFactory:
           tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID, "@Vinvin27 Le site est down!!")
           info.insert(0, hostname)
           info.insert(1, "Est down !! :(")
+          info.insert(2, "ERROR")
         except:
           print ("Erreur lors de l'envoi de message par le Bot Telegram")
 
