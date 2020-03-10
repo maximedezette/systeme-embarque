@@ -65,14 +65,24 @@ def get_request():
   #To create query https://ga-dev-tools.appspot.com/request-composer/
   request = {}
   request[1]={
-          'reportRequests': [
+    "reportRequests": [
+      {
+        "viewId": constants.VIEW_ID,
+        "dateRanges": [
           {
-            'viewId': constants.VIEW_ID,
-            'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'today'}],
-            'metrics': [{'expression': 'ga:sessions'}],
-            'dimensions': [{'name': 'ga:country'}]
-          }]
-        }
+            "startDate": "7daysAgo",
+            "endDate": "yesterday"
+          }
+        ],
+        "metrics": [
+          {
+            "expression": "ga:users",
+            "alias": ""
+          }
+        ]
+      }
+    ]
+  }
   request[2]={
     "reportRequests": [
       {
