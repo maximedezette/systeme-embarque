@@ -94,3 +94,10 @@ class ScreenManager:
     def light_off_alert_led(self):
         GPIO.setup(ALERT_LED, GPIO.OUT)
         GPIO.output(ALERT_LED, GPIO.LOW) 
+
+    def led_is_light(self):
+        GPIO.setup(ALERT_LED, GPIO.OUT)
+        ledIsLight = False
+        if(GPIO.input(ALERT_LED)):
+            ledIsLight = True 
+        return ledIsLight

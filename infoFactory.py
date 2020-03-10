@@ -1,6 +1,6 @@
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
-from telegramBotManager import TelegramBotManager
+
 
 import socket
 import os
@@ -150,17 +150,13 @@ class InfoFactory:
         info.insert(0, hostname)
         info.insert(1, "Est up :)")
         info.insert(2, "OK")
+        info.insert(3, "Le site est de nouveau en ligne!")
       else:
-      # Call method for send message
-        try:
-          tbm = TelegramBotManager()
-          tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID, "@Vinvin27 Le site est down!!")
           info.insert(0, hostname)
           info.insert(1, "Est down !! :(")
           info.insert(2, "ERROR")
-        except:
-          print ("Erreur lors de l'envoi de message par le Bot Telegram")
-
+          info.insert(3, "@Vinvin27 Le site est down!!")
+        
     else:
      info.insert(0, "ERREUR")
     return info

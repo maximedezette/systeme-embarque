@@ -5,6 +5,7 @@ from ui import UI
 from constantsManager import ConstantsManager
 
 
+
 def main():
   ui = UI()
 
@@ -16,6 +17,7 @@ def main():
 
   from infoFactory import InfoFactory
   from screenManager import ScreenManager
+  from telegramBotManager import TelegramBotManager
 
   screen_manager = ScreenManager()
 
@@ -46,8 +48,21 @@ def main():
     if len(info)>2:
       if(info[2] =="ERROR"):
         screen_manager.light_on_alert_led()
+        try:
+          tbm = TelegramBotManager()
+          tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID,info[3])
+        except:
+          print ("Erreur lors de l'envoi de message par le Bot Telegram")
       else:
-        screen_manager.light_off_alert_led()
+        if(bool(screen_manager.led_is_light())):
+          screen_manager.light_off_alert_led()
+          try:
+            tbm = TelegramBotManager()
+            tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID,info[3])
+          except:
+            print ("Erreur lors de l'envoi de message par le Bot Telegram")
+      
+          
   
     time.sleep(10)
 
