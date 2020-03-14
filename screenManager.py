@@ -1,6 +1,9 @@
 import smbus as smbus
 import time
 import constants
+import RPi.GPIO as GPIO
+
+GPIO.setmode(GPIO.BOARD) 
 
 
 # Define some device parameters
@@ -21,6 +24,8 @@ E_DELAY = 0.0005
 # Open I2C interface
 # bus = smbus.SMBus(0)  # Rev 1 Pi uses 0
 bus = smbus.SMBus(1)    # Rev 2 Pi uses 1
+# GPIO of the alert led
+ALERT_LED = 7
 
 
     
@@ -81,3 +86,18 @@ class ScreenManager:
 
     def print_second_line(self,message):
         self.lcd_string(message,LCD_LINE_2)
+
+    def light_on_alert_led(self):
+        GPIO.setup(ALERT_LED, GPIO.OUT)
+        GPIO.output(ALERT_LED, GPIO.HIGH) 
+
+    def light_off_alert_led(self):
+        GPIO.setup(ALERT_LED, GPIO.OUT)
+        GPIO.output(ALERT_LED, GPIO.LOW) 
+
+    def led_is_light(self):
+        GPIO.setup(ALERT_LED, GPIO.OUT)
+        ledIsLight = False
+        if(GPIO.input(ALERT_LED)):
+            ledIsLight = True 
+        return ledIsLight

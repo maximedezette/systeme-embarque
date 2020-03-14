@@ -1,6 +1,6 @@
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
-from telegramBotManager import TelegramBotManager
+
 
 import socket
 import os
@@ -65,14 +65,24 @@ def get_request():
   #To create query https://ga-dev-tools.appspot.com/request-composer/
   request = {}
   request[1]={
-          'reportRequests': [
+    "reportRequests": [
+      {
+        "viewId": constants.VIEW_ID,
+        "dateRanges": [
           {
-            'viewId': constants.VIEW_ID,
-            'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'today'}],
-            'metrics': [{'expression': 'ga:sessions'}],
-            'dimensions': [{'name': 'ga:country'}]
-          }]
-        }
+            "startDate": "7daysAgo",
+            "endDate": "yesterday"
+          }
+        ],
+        "metrics": [
+          {
+            "expression": "ga:users",
+            "alias": ""
+          }
+        ]
+      }
+    ]
+  }
   request[2]={
     "reportRequests": [
       {
@@ -149,16 +159,14 @@ class InfoFactory:
       if http_status_of_host == 200:
         info.insert(0, hostname)
         info.insert(1, "Est up :)")
+        info.insert(2, "OK")
+        info.insert(3, "Le site est de nouveau en ligne!")
       else:
-      # Call method for send message
-        try:
-          tbm = TelegramBotManager()
-          tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID, "@Vinvin27 Le site est down!!")
           info.insert(0, hostname)
           info.insert(1, "Est down !! :(")
-        except:
-          print ("Erreur lors de l'envoi de message par le Bot Telegram")
-
+          info.insert(2, "ERROR")
+          info.insert(3, "@Vinvin27 Le site est down!!")
+        
     else:
      info.insert(0, "ERREUR")
     return info
