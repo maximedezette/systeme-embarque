@@ -18,6 +18,7 @@ def main():
   from infoFactory import InfoFactory
   from screenManager import ScreenManager
   from telegramBotManager import TelegramBotManager
+  from info import Info
 
   screen_manager = ScreenManager()
 
@@ -35,32 +36,30 @@ def main():
     else:
       id_info = id_info + 1
 
-    info = []
+    info = Info()
     #On récupère l'info à afficher
     info = info_factory.generate_info(id_info)
 
     #On affiche l'info
-    screen_manager.print_first_line(info[0])
+    screen_manager.print_first_line(info.get_first_line())
+    screen_manager.print_second_line(info.get_second_line())
 
-    if len(info)>1:
-      screen_manager.print_second_line(info[1])
 
-    if len(info)>2:
-      if(info[2] =="ERROR"):
-        screen_manager.light_on_alert_led()
+    if(info.get_level() =="ERROR"):
+      screen_manager.light_on_alert_led()
+      try:
+        tbm = TelegramBotManager()
+        tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID,info.get_telegram_message())
+      except:
+        print ("Erreur lors de l'envoi de message par le Bot Telegram")
+    else:
+      if(bool(screen_manager.led_is_light())):
+        screen_manager.light_off_alert_led()
         try:
           tbm = TelegramBotManager()
-          tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID,info[3])
+          tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID,info.get_telegram_message())
         except:
           print ("Erreur lors de l'envoi de message par le Bot Telegram")
-      else:
-        if(bool(screen_manager.led_is_light())):
-          screen_manager.light_off_alert_led()
-          try:
-            tbm = TelegramBotManager()
-            tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID,info[3])
-          except:
-            print ("Erreur lors de l'envoi de message par le Bot Telegram")
       
           
   

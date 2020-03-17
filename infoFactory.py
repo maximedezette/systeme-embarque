@@ -8,6 +8,7 @@ import requests
 import constants
 
 from datetime import datetime
+from info import Info
 
 # Telegram group ID
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
@@ -127,14 +128,14 @@ class InfoFactory:
     analytics = initialize_analytics_reporting()
     request = get_request()
     
-    info = []
+    info = Info()
 
     if id_info == 1:
       try:
         response = get_report(request,analytics, id_info)
         number_of_user_last_week = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
-        info.insert(0,"SEMAINE DERNIERE")
-        info.insert(1,str(number_of_user_last_week) + " utilisateurs")
+        info.set_first_line("SEMAINE DERNIERE")
+        info.set_second_line(str(number_of_user_last_week) + " utilisateurs")
       except:
         print ("Erreur lors de la recuperation des visiteurs de la semaine dernière")
 
@@ -142,31 +143,31 @@ class InfoFactory:
      try:
       response = get_report(request,analytics, id_info)
       number_of_user_last_week = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
-      info.insert(0,"MOIS DERNIER")
-      info.insert(1,str(number_of_user_last_week) + " utilisateurs")
+      info.set_first_line("MOIS DERNIER")
+      info.set_second_line(str(number_of_user_last_week) + " utilisateurs")
      except:
        print ("Erreur lors de la recuperation des visiteurs du mois dernier")
 
     elif id_info == 3:
      ip = get_ip_address()
-     info.insert(0,datetime.now().strftime('%b %d  %H:%M:%S\n'))
-     info.insert(1,'IP {}'.format(ip))
+     info.set_first_line(datetime.now().strftime('%b %d  %H:%M:%S\n'))
+     info.set_second_line('IP {}'.format(ip))
      
     
     elif id_info == 4:
       hostname = "apero-tech.fr"
       http_status_of_host = requests.get("https://"+hostname).status_code      
       if http_status_of_host == 200:
-        info.insert(0, hostname)
-        info.insert(1, "Est up :)")
-        info.insert(2, "OK")
-        info.insert(3, "Le site est de nouveau en ligne!")
+        info.set_first_line(hostname)
+        info.set_second_line("Est up :)")
+        info.set_telegram_message("Le site est de nouveau en ligne!")
       else:
-          info.insert(0, hostname)
-          info.insert(1, "Est down !! :(")
-          info.insert(2, "ERROR")
-          info.insert(3, "@Vinvin27 Le site est down!!")
+          info.set_first_line(hostname)
+          info.set_second_line("Est down !! :(")
+          info.set_level("ERROR")
+          info.set_telegram_message("@Vinvin27 Le site est down!!")
         
     else:
-     info.insert(0, "ERREUR")
+     info.set_level("ERROR")
+     info.set_telegram_message("L'info n'existe pas")
     return info
