@@ -6,11 +6,15 @@ import socket
 import os
 import requests 
 import constants
+import logging
 
 from datetime import datetime
 from info import Info
 
-# Telegram group ID
+
+
+
+
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 KEY_FILE_LOCATION = 'arboreal-drake-711-439eedbba062.json'
 
@@ -118,8 +122,7 @@ def get_ip_address():
 class InfoFactory:
 
   number_of_info = 4
-
-
+  
   def get_number_of_info(self):
     return self.number_of_info
 
@@ -138,7 +141,7 @@ class InfoFactory:
         info.set_first_line("SEMAINE DERNIERE")
         info.set_second_line(str(number_of_user_last_week) + " utilisateurs")
       except:
-        print ("Erreur lors de la recuperation des visiteurs de la semaine dernière")
+        logging.error("Erreur lors de la recuperation des visiteurs de la semaine dernière")
 
     elif id_info == 2:
      try:
@@ -147,7 +150,7 @@ class InfoFactory:
       info.set_first_line("MOIS DERNIER")
       info.set_second_line(str(number_of_user_last_week) + " utilisateurs")
      except:
-       print ("Erreur lors de la recuperation des visiteurs du mois dernier")
+       logging.error("Erreur lors de la recuperation des visiteurs du mois dernier")
 
     elif id_info == 3:
      ip = get_ip_address()
@@ -167,8 +170,8 @@ class InfoFactory:
           info.set_second_line("Est down !! :(")
           info.set_level("ERROR")
           info.set_telegram_message("@Vinvin27 Le site est down!!")
+          logging.error(hostname + "est down!")
         
     else:
-     info.set_level("ERROR")
-     info.set_telegram_message("L'info n'existe pas")
+       logging.error("L'info n'existe pas")
     return info

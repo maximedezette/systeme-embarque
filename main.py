@@ -1,5 +1,6 @@
 import time
 import constants
+import logging
 
 from ui import UI
 from constantsManager import ConstantsManager
@@ -7,6 +8,10 @@ from constantsManager import ConstantsManager
 
 
 def main():
+
+  logging.basicConfig(format='%(asctime)s %(message)s',datefmt='%d/%m/%Y %I:%M:%S',filename='logs/error.log', level=logging.ERROR)
+
+
   ui = UI()
 
   ui.print_message("-- Passphrase for encryption database")
