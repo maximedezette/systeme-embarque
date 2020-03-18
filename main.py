@@ -25,11 +25,16 @@ def main():
   info_factory = InfoFactory()
   id_info_max = info_factory.get_number_of_info()
   id_info = 2
+
+  #Id de l'info qui provoque l'erreur courante
+  #Si elle est à 0, il n'y a pas d'erreur
+  id_info_error = 0
   
-  screen_manager.lcd_init() 
+  screen_manager.lcd_init()
+  screen_manager.light_off_alert_led() 
 
   while True:
-    #On repart de 0 si on a affiché la dernière info
+    #On repart à la première info si on a affiché la dernière info
     #sinon on passe à la suivante
     if id_info == id_info_max:
      id_info = 1
@@ -47,14 +52,16 @@ def main():
 
     if(info.get_level() =="ERROR"):
       screen_manager.light_on_alert_led()
+      id_info_error = info.get_id()
       try:
         tbm = TelegramBotManager()
         tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID,info.get_telegram_message())
       except:
         print ("Erreur lors de l'envoi de message par le Bot Telegram")
     else:
-      if(bool(screen_manager.led_is_light())):
+      if(bool(screen_manager.led_is_light()) and id_info_error == info.get_id()):
         screen_manager.light_off_alert_led()
+        id_info_error = 0
         try:
           tbm = TelegramBotManager()
           tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID,info.get_telegram_message())

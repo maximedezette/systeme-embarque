@@ -1,10 +1,14 @@
 class Info:
 
+    __id = None
     __first_line = ""
     __second_line = ""
     __level = "INFO"
     __telegram_message = "Une erreur est survenue!"
 
+
+    def set_id(self,id):
+        self.__id = id
 
     def set_first_line(self,line):
         self.__first_line = line
@@ -17,6 +21,9 @@ class Info:
 
     def set_telegram_message(self,telegram_message):
         self.__telegram_message = telegram_message   
+
+    def get_id(self):
+        return self.__id
 
     def get_first_line(self):
         return self.__first_line

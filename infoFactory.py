@@ -129,6 +129,7 @@ class InfoFactory:
     request = get_request()
     
     info = Info()
+    info.set_id(id_info)
 
     if id_info == 1:
       try:
