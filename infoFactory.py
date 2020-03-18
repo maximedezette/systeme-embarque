@@ -66,10 +66,10 @@ def print_response(response):
           print (metric_header.get('name') + ': ' + value)
 
 
-def get_request():
+def get_request(key_request):
   #To create query https://ga-dev-tools.appspot.com/request-composer/
   request = {}
-  request[1]={
+  request['7daysAgo']={
     "reportRequests": [
       {
         "viewId": constants.VIEW_ID,
@@ -88,7 +88,7 @@ def get_request():
       }
     ]
   }
-  request[2]={
+  request['30daysAgo']={
     "reportRequests": [
       {
         "viewId": constants.VIEW_ID,
@@ -107,7 +107,7 @@ def get_request():
       }
     ]
   }
-  return request
+  return request[key_request]
 
 
 def get_ip_address():
@@ -129,13 +129,14 @@ class InfoFactory:
 
   def generate_info(self, id_info):
     analytics = initialize_analytics_reporting()
-    request = get_request()
+    
     
     info = Info()
     info.set_id(id_info)
 
     if id_info == 1:
       try:
+        request = get_request('7daysAgo')
         response = get_report(request,analytics, id_info)
         number_of_user_last_week = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
         info.set_first_line("SEMAINE DERNIERE")
@@ -145,6 +146,7 @@ class InfoFactory:
 
     elif id_info == 2:
      try:
+      request = get_request('30daysAgo')
       response = get_report(request,analytics, id_info)
       number_of_user_last_week = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
       info.set_first_line("MOIS DERNIER")
