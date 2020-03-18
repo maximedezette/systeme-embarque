@@ -9,7 +9,7 @@ from constantsManager import ConstantsManager
 
 def main():
 
-  logging.basicConfig(format='%(asctime)s %(message)s',datefmt='%d/%m/%Y %I:%M:%S',filename='logs/error.log', level=logging.ERROR)
+  logging.basicConfig(format='%(asctime)s %(message)s',datefmt='%d/%m/%Y %H:%M:%S',filename='logs/error.log', level=logging.ERROR)
 
 
   ui = UI()
@@ -62,16 +62,17 @@ def main():
         tbm = TelegramBotManager()
         tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID,info.get_telegram_message())
       except:
-        print ("Erreur lors de l'envoi de message par le Bot Telegram")
+        logging.error("Erreur lors de l'envoi de message par le Bot Telegram")
     else:
-      if(bool(screen_manager.led_is_light()) and id_info_error == info.get_id()):
+      if(id_info_error == info.get_id()):
         screen_manager.light_off_alert_led()
+        #On signale qu'il n'y a plus d'erreur
         id_info_error = 0
         try:
           tbm = TelegramBotManager()
           tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID,info.get_telegram_message())
         except:
-          print ("Erreur lors de l'envoi de message par le Bot Telegram")
+          logging.error("Erreur lors de l'envoi de message par le Bot Telegram")
       
           
   

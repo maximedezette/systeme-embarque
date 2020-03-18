@@ -42,7 +42,7 @@ def get_report(request, analytics,id):
       The Analytics Reporting API V4 response.
     """
     return analytics.reports().batchGet(
-        body=request[id]
+        body=request
     ).execute()
 
 
