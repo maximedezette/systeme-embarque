@@ -1,5 +1,6 @@
 import time
 import constants
+import logging
 
 from ui import UI
 from constantsManager import ConstantsManager
@@ -7,6 +8,10 @@ from constantsManager import ConstantsManager
 
 
 def main():
+
+  logging.basicConfig(format='%(asctime)s %(message)s',datefmt='%d/%m/%Y %H:%M:%S',filename='logs/error.log', level=logging.ERROR)
+
+
   ui = UI()
 
   ui.print_message("-- Passphrase for encryption database")
@@ -18,49 +23,56 @@ def main():
   from infoFactory import InfoFactory
   from screenManager import ScreenManager
   from telegramBotManager import TelegramBotManager
+  from info import Info
 
   screen_manager = ScreenManager()
 
   info_factory = InfoFactory()
   id_info_max = info_factory.get_number_of_info()
   id_info = 2
+
+  #Id de l'info qui provoque l'erreur courante
+  #Si elle est à 0, il n'y a pas d'erreur
+  id_info_error = 0
   
-  screen_manager.lcd_init() 
+  screen_manager.lcd_init()
+  screen_manager.light_off_alert_led() 
 
   while True:
-    #On repart de 0 si on a affiché la dernière info
+    #On repart à la première info si on a affiché la dernière info
     #sinon on passe à la suivante
     if id_info == id_info_max:
      id_info = 1
     else:
       id_info = id_info + 1
 
-    info = []
+    info = Info()
     #On récupère l'info à afficher
     info = info_factory.generate_info(id_info)
 
     #On affiche l'info
-    screen_manager.print_first_line(info[0])
+    screen_manager.print_first_line(info.get_first_line())
+    screen_manager.print_second_line(info.get_second_line())
 
-    if len(info)>1:
-      screen_manager.print_second_line(info[1])
 
-    if len(info)>2:
-      if(info[2] =="ERROR"):
-        screen_manager.light_on_alert_led()
+    if(info.get_level() =="ERROR"):
+      screen_manager.light_on_alert_led()
+      id_info_error = info.get_id()
+      try:
+        tbm = TelegramBotManager()
+        tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID,info.get_telegram_message())
+      except:
+        logging.error("Erreur lors de l'envoi de message par le Bot Telegram")
+    else:
+      if(id_info_error == info.get_id()):
+        screen_manager.light_off_alert_led()
+        #On signale qu'il n'y a plus d'erreur
+        id_info_error = 0
         try:
           tbm = TelegramBotManager()
-          tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID,info[3])
+          tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID,info.get_telegram_message())
         except:
-          print ("Erreur lors de l'envoi de message par le Bot Telegram")
-      else:
-        if(bool(screen_manager.led_is_light())):
-          screen_manager.light_off_alert_led()
-          try:
-            tbm = TelegramBotManager()
-            tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID,info[3])
-          except:
-            print ("Erreur lors de l'envoi de message par le Bot Telegram")
+          logging.error("Erreur lors de l'envoi de message par le Bot Telegram")
       
           
   
