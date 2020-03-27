@@ -1,24 +1,25 @@
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
-from telegramBotManager import TelegramBotManager
+
 
 import socket
 import os
 import requests 
-from datetime import datetime
+import constants
+import logging
 
-# Telegram group ID
-TELEGRAM_GROUP_ID = os.environ.get('TelegramAperoTechGroupId')
+from datetime import datetime
+from info import Info
+
+
+
 
 
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 KEY_FILE_LOCATION = 'arboreal-drake-711-439eedbba062.json'
-VIEW_ID = '199779379'
-
-tbm = TelegramBotManager()
 
 
-def initialize_analyticsreporting():
+def initialize_analytics_reporting():
    """Initializes an Analytics Reporting API V4 service object.
 
     Returns:
@@ -30,8 +31,9 @@ def initialize_analyticsreporting():
    analytics = build('analyticsreporting', 'v4', credentials=credentials)
 
    return analytics
-  
-def get_report(analytics,id):
+
+
+def get_report(request, analytics,id):
     """Queries the Analytics Reporting API V4.
 
     Args:
@@ -40,8 +42,9 @@ def get_report(analytics,id):
       The Analytics Reporting API V4 response.
     """
     return analytics.reports().batchGet(
-        body=request[id]
+        body=request
     ).execute()
+
 
 def print_response(response):
   """Parses and prints the Analytics Reporting API V4 response.
@@ -49,49 +52,64 @@ def print_response(response):
     response: An Analytics Reporting API V4 response.
   """
   for report in response.get('reports', []):
-    columnHeader = report.get('columnHeader', {})
-    dimensionHeaders = columnHeader.get('dimensions', [])
-    metricHeaders = columnHeader.get('metricHeader', {}).get('metricHeaderEntries', [])
+    column_header = report.get('columnHeader', {})
+    dimension_headers = column_header.get('dimensions', [])
+    metric_headers = column_header.get('metricHeader', {}).get('metricHeaderEntries', [])
     for row in report.get('data', {}).get('rows', []):
       dimensions = row.get('dimensions', [])
-      dateRangeValues = row.get('metrics', [])
-      for header, dimension in zip(dimensionHeaders, dimensions):
+      date_range_values = row.get('metrics', [])
+      for header, dimension in zip(dimension_headers, dimensions):
         print (header + ': ' + dimension)
-      for i, values in enumerate(dateRangeValues):
+      for i, values in enumerate(date_range_values):
         print ('Date range: ' + str(i))
-        for metricHeader, value in zip(metricHeaders, values.get('values')):
-          print (metricHeader.get('name') + ': ' + value)
+        for metric_header, value in zip(metric_headers, values.get('values')):
+          print (metric_header.get('name') + ': ' + value)
 
-#To create query https://ga-dev-tools.appspot.com/request-composer/
-request = {}
-request[1]={
-        'reportRequests': [
-        {
-          'viewId': VIEW_ID,
-          'dateRanges': [{'startDate': '7daysAgo', 'endDate': 'today'}],
-          'metrics': [{'expression': 'ga:sessions'}],
-          'dimensions': [{'name': 'ga:country'}]
-        }]
+
+def get_request(key_request):
+  #To create query https://ga-dev-tools.appspot.com/request-composer/
+  request = {}
+  request['7daysAgo']={
+    "reportRequests": [
+      {
+        "viewId": constants.VIEW_ID,
+        "dateRanges": [
+          {
+            "startDate": "7daysAgo",
+            "endDate": "yesterday"
+          }
+        ],
+        "metrics": [
+          {
+            "expression": "ga:users",
+            "alias": ""
+          }
+        ]
       }
-request[2]={
-  "reportRequests": [
-    {
-      "viewId": "199779379",
-      "dateRanges": [
-        {
-          "startDate": "30daysAgo",
-          "endDate": "yesterday"
-        }
-      ],
-      "metrics": [
-        {
-          "expression": "ga:users",
-          "alias": ""
-        }
-      ]
-    }
-  ]
-}
+    ]
+  }
+  request['30daysAgo']={
+    "reportRequests": [
+      {
+        "viewId": constants.VIEW_ID,
+        "dateRanges": [
+          {
+            "startDate": "30daysAgo",
+            "endDate": "yesterday"
+          }
+        ],
+        "metrics": [
+          {
+            "expression": "ga:users",
+            "alias": ""
+          }
+        ]
+      }
+    ]
+  }
+  return request[key_request]
+
+
 def get_ip_address():
     return [
              (s.connect(('8.8.8.8', 53)),
@@ -100,48 +118,62 @@ def get_ip_address():
                   [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]
            ][0][1]
 
+
 class InfoFactory:
 
-  numberOfInfo = 4
+  number_of_info = 4
+  
+  def get_number_of_info(self):
+    return self.number_of_info
 
-  def getNumberOfInfo(self):
-    return self.numberOfInfo
 
-  def generateInfo(self,idInfo):
-    analytics = initialize_analyticsreporting()
-
-    info = []
-
-    if idInfo == 1:
-     response = get_report(analytics,idInfo)
-     numberOfUserLastWeek = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
-     info.insert(0,"SEMAINE DERNIERE")
-     info.insert(1,str(numberOfUserLastWeek) + " utilisateurs")
-
-    elif idInfo == 2:
-     response = get_report(analytics,idInfo)
-     numberOfUserLastWeek = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
-     info.insert(0,"MOIS DERNIER")
-     info.insert(1,str(numberOfUserLastWeek) + " utilisateurs")
-
-    elif idInfo ==3:
-     ip = get_ip_address()
-     info.insert(0,datetime.now().strftime('%b %d  %H:%M:%S\n'))
-     info.insert(1,'IP {}'.format(ip))
+  def generate_info(self, id_info):
+    analytics = initialize_analytics_reporting()
     
-    elif idInfo == 4:
-      hostname = "apero-tech.fr"
-      httpStatusOfHost = requests.get("https://"+hostname).status_code
-      # Call method for send message
-      print(httpStatusOfHost)
-      if httpStatusOfHost == 200:
-        info.insert(0, hostname)
-        info.insert(1, "Est up :)")
-      else:
-        tbm.send_message_to_group(TELEGRAM_GROUP_ID, "@Vinvin27 Le site est down!!")
-        info.insert(0, hostname)
-        info.insert(1, "Est down !! :(")
+    
+    info = Info()
+    info.set_id(id_info)
 
+    if id_info == 1:
+      try:
+        request = get_request('7daysAgo')
+        response = get_report(request,analytics, id_info)
+        number_of_user_last_week = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
+        info.set_first_line("SEMAINE DERNIERE")
+        info.set_second_line(str(number_of_user_last_week) + " utilisateurs")
+      except:
+        logging.error("Erreur lors de la recuperation des visiteurs de la semaine dernière")
+
+    elif id_info == 2:
+     try:
+      request = get_request('30daysAgo')
+      response = get_report(request,analytics, id_info)
+      number_of_user_last_week = response.get("reports")[0].get("data").get("rows")[0].get("metrics")[0].get("values")[0]
+      info.set_first_line("MOIS DERNIER")
+      info.set_second_line(str(number_of_user_last_week) + " utilisateurs")
+     except:
+       logging.error("Erreur lors de la recuperation des visiteurs du mois dernier")
+
+    elif id_info == 3:
+     ip = get_ip_address()
+     info.set_first_line(datetime.now().strftime('%b %d  %H:%M:%S\n'))
+     info.set_second_line('IP {}'.format(ip))
+     
+    
+    elif id_info == 4:
+      hostname = "apero-tech.fr"
+      http_status_of_host = requests.get("https://"+hostname).status_code      
+      if http_status_of_host == 200:
+        info.set_first_line(hostname)
+        info.set_second_line("Est up :)")
+        info.set_telegram_message("Le site est de nouveau en ligne!")
+      else:
+          info.set_first_line(hostname)
+          info.set_second_line("Est down !! :(")
+          info.set_level("ERROR")
+          info.set_telegram_message("@Vinvin27 Le site est down!!")
+          logging.error(hostname + "est down!")
+        
     else:
-     info.insert(0,"ERREUR")
+       logging.error("L'info n'existe pas")
     return info

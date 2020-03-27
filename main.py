@@ -1,124 +1,86 @@
-from infoFactory import InfoFactory
-
-
-import smbus2 as smbus
 import time
-import math
+import constants
+import logging
+
+from ui import UI
+from constantsManager import ConstantsManager
 
 
-# Define some device parameters
-I2C_ADDR = 0x27     # I2C device address, if any error, change this address to 0x3f
-LCD_WIDTH = 16      # Maximum characters per line
-
-# Define some device constants
-LCD_CHR = 1     # Mode - Sending data
-LCD_CMD = 0     # Mode - Sending command
-
-LCD_LINE_1 = 0x80   # LCD RAM address for the 1st line
-LCD_LINE_2 = 0xC0   # LCD RAM address for the 2nd line
-LCD_LINE_3 = 0x94   # LCD RAM address for the 3rd line
-LCD_LINE_4 = 0xD4   # LCD RAM address for the 4th line
-
-LCD_BACKLIGHT = 0x08  # On
-
-ENABLE = 0b00000100     # Enable bit
-
-# Timing constants
-E_PULSE = 0.0005
-E_DELAY = 0.0005
-
-# Open I2C interface
-# bus = smbus.SMBus(0)  # Rev 1 Pi uses 0
-bus = smbus.SMBus(1)    # Rev 2 Pi uses 1
-
-
-def lcd_init():
-    # Initialise display
-    lcd_byte(0x33, LCD_CMD)     # 110011 Initialise
-    lcd_byte(0x32, LCD_CMD)     # 110010 Initialise
-    lcd_byte(0x06, LCD_CMD)     # 000110 Cursor move direction
-    lcd_byte(0x0C, LCD_CMD)     # 001100 Display On,Cursor Off, Blink Off
-    lcd_byte(0x28, LCD_CMD)     # 101000 Data length, number of lines, font size
-    lcd_byte(0x01, LCD_CMD)     # 000001 Clear display
-    time.sleep(E_DELAY)
-
-
-def lcd_byte(bits, mode):
-    # Send byte to data pins
-    # bits = the data
-    # mode = 1 for data
-    #        0 for command
-
-    bits_high = mode | (bits & 0xF0) | LCD_BACKLIGHT
-    bits_low = mode | ((bits << 4) & 0xF0) | LCD_BACKLIGHT
-
-    # High bits
-    bus.write_byte(I2C_ADDR, bits_high)
-    lcd_toggle_enable(bits_high)
-
-    # Low bits
-    bus.write_byte(I2C_ADDR, bits_low)
-    lcd_toggle_enable(bits_low)
-
-
-def lcd_toggle_enable(bits):
-    # Toggle enable
-    time.sleep(E_DELAY)
-    bus.write_byte(I2C_ADDR, (bits | ENABLE))
-    time.sleep(E_PULSE)
-    bus.write_byte(I2C_ADDR, (bits & ~ENABLE))
-    time.sleep(E_DELAY)
-
-
-def lcd_string(message, line):
-    # Send string to display
-    message = message.ljust(LCD_WIDTH, " ")
-
-    lcd_byte(line, LCD_CMD)
-
-    for i in range(LCD_WIDTH):
-        lcd_byte(ord(message[i]), LCD_CHR)
-        time.sleep(0.1)
 
 def main():
 
-  global firstLine
-  global ID_REQUEST 
+  logging.basicConfig(format='%(asctime)s %(message)s',datefmt='%d/%m/%Y %H:%M:%S',filename='logs/error.log', level=logging.ERROR)
 
- 
-  infoFactory = InfoFactory()
-  idInfoMax = infoFactory.getNumberOfInfo()
-  idInfo = 1
+
+  ui = UI()
+
+  ui.print_message("-- Passphrase for encryption database")
+  cm = ConstantsManager(ui.get_user_entry("Enter passphrase: "))
+  constants.VIEW_ID = cm.getConstantValue(constants.STR_VIEW_ID)
+  constants.TELEGRAM_BOT_TOKEN = cm.getConstantValue(constants.STR_TELEGRAM_BOT_TOKEN)
+  constants.TELEGRAM_GROUP_ID = cm.getConstantValue(constants.STR_TELEGRAM_GROUP_ID)
+
+  from infoFactory import InfoFactory
+  from screenManager import ScreenManager
+  from telegramBotManager import TelegramBotManager
+  from info import Info
+
+  screen_manager = ScreenManager()
+
+  info_factory = InfoFactory()
+  id_info_max = info_factory.get_number_of_info()
+  id_info = 2
+
+  #Id de l'info qui provoque l'erreur courante
+  #Si elle est à 0, il n'y a pas d'erreur
+  id_info_error = 0
   
-  global ID_REQUEST 
-
-  lcd_init() 
+  screen_manager.lcd_init()
+  screen_manager.light_off_alert_led() 
 
   while True:
-
-    #On repart de 0 si on a affiché la dernière info
+    #On repart à la première info si on a affiché la dernière info
     #sinon on passe à la suivante
-    if idInfo == idInfoMax:
-     idInfo = 1
+    if id_info == id_info_max:
+     id_info = 1
     else:
-      idInfo = idInfo + 1
+      id_info = id_info + 1
 
-    info = []
+    info = Info()
     #On récupère l'info à afficher
-    info = infoFactory.generateInfo(idInfo)
+    info = info_factory.generate_info(id_info)
 
     #On affiche l'info
-    lcd_string(info[0],LCD_LINE_1)
+    screen_manager.print_first_line(info.get_first_line())
+    screen_manager.print_second_line(info.get_second_line())
 
-    if len(info)>1:
-     lcd_string(info[1],LCD_LINE_2)
+
+    if(info.get_level() =="ERROR"):
+      screen_manager.light_on_alert_led()
+      id_info_error = info.get_id()
+      try:
+        tbm = TelegramBotManager()
+        tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID,info.get_telegram_message())
+      except:
+        logging.error("Erreur lors de l'envoi de message par le Bot Telegram")
+    else:
+      if(id_info_error == info.get_id()):
+        screen_manager.light_off_alert_led()
+        #On signale qu'il n'y a plus d'erreur
+        id_info_error = 0
+        try:
+          tbm = TelegramBotManager()
+          tbm.send_message_to_group(constants.TELEGRAM_GROUP_ID,info.get_telegram_message())
+        except:
+          logging.error("Erreur lors de l'envoi de message par le Bot Telegram")
+      
+          
   
     time.sleep(10)
 
     #On efface le contenu de l'écran
-    lcd_init()
+    screen_manager.lcd_init()
+
 
 if __name__ == '__main__':
   main()
-
-
